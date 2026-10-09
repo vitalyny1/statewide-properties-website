@@ -4,13 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
   <title>1% Listing Commission Realtor in Queens &amp; Nassau County, NY | StateWide Properties Group</title>
   <meta name="description" content="Sell your home in Queens or Nassau County, NY, with StateWide Properties Group. Explore professional real estate representation with a proposed 1% listing commission, subject to a written agreement.">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#438BCB">
   <link rel="canonical" href="https://StateWidePropertiesGroup.com/">
-
   <meta property="og:title" content="StateWide Properties Group | Queens & Nassau County Real Estate">
   <meta property="og:description" content="Explore real estate listing services and a proposed 1% listing commission for homeowners in Queens and Nassau County, NY.">
   <meta property="og:type" content="website">
@@ -233,6 +231,42 @@
     .hero .small-note {
       margin-top: 18px;
       margin-bottom: 0;
+    }
+
+    /* NEW: Home equity message section */
+    .equity-section {
+      padding: 58px 0;
+      background: var(--blue-light);
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .equity-panel {
+      max-width: 850px;
+      margin: 0 auto;
+    }
+
+    .equity-panel h2 {
+      margin-bottom: 15px;
+    }
+
+    .equity-panel .equity-emphasis {
+      color: var(--blue-dark);
+      font-size: clamp(21px, 3vw, 27px);
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .equity-panel .equity-copy {
+      max-width: 740px;
+      margin: 0 auto 18px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    .equity-panel .small-note {
+      max-width: 760px;
+      margin: 22px auto 0;
     }
 
     section { padding: 70px 0; }
@@ -566,7 +600,16 @@
       .button-row { flex-direction: column; align-items: stretch; }
       .button-row .button { width: 100%; }
       .areas-grid { grid-template-columns: 1fr; }
-      .area-card, .diy-panel, .contact-info, .contact-form { padding: 23px; }
+
+      .area-card,
+      .diy-panel,
+      .contact-info,
+      .contact-form {
+        padding: 23px;
+      }
+
+      .equity-section { padding: 45px 0; }
+      .equity-panel .equity-copy { font-size: 16px; }
       .footer-area { white-space: normal; }
     }
   </style>
@@ -608,6 +651,39 @@
           Listing commission is negotiable and subject to a written agreement.
           Buyer-agent compensation and additional expenses are separate unless
           otherwise agreed in writing.
+        </p>
+      </div>
+    </section>
+
+    <!-- NEW SECTION: Keep more of your home equity -->
+    <section class="equity-section" id="keep-your-equity">
+      <div class="container equity-panel">
+        <h2>Why Pay More Than You Have To?</h2>
+
+        <p class="equity-emphasis">
+          Keep More of Your Home's Equity.
+        </p>
+
+        <p class="equity-copy">
+          Selling your home is a major financial decision. Why pay a higher
+          listing commission when you may be able to keep more of your
+          hard-earned equity?
+        </p>
+
+        <p class="equity-copy">
+          Explore professional real estate representation with a proposed
+          <strong>1% listing commission</strong> and keep more of your money
+          where it belongs—with you.
+        </p>
+
+        <div class="button-row">
+          <a class="button" href="#contact">LET'S TALK ABOUT SAVING</a>
+        </div>
+
+        <p class="small-note">
+          All commissions are negotiable. The proposed listing commission and
+          included services are subject to a written agreement. Buyer-agent
+          compensation and other expenses may be separate.
         </p>
       </div>
     </section>
@@ -929,7 +1005,6 @@
           <form class="contact-form"
                 action="https://formsubmit.co/info@StatewidePropertiesGroup.com"
                 method="POST">
-
             <input type="hidden" name="_subject" value="New Property Inquiry - StateWide Properties Group">
             <input type="hidden" name="_next" value="https://StateWidePropertiesGroup.com/#contact">
             <input type="hidden" name="_template" value="table">
@@ -1015,11 +1090,13 @@
           Buyer-agent compensation, closing costs, and third-party expenses
           are separate unless expressly agreed otherwise in writing.
         </p>
+
         <p>
           Information on this website is for general informational purposes
           and does not constitute a guarantee of results or a binding offer
           of real estate services.
         </p>
+
         <p>&copy; <span id="copyright-year">2026</span> StateWide Properties Group. All rights reserved.</p>
       </div>
     </div>
