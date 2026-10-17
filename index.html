@@ -83,8 +83,8 @@
     }
 
     .header-contact-bar {
-      background: var(--blue-dark);
-      color: var(--white);
+      background: transparent;
+      color: var(--blue-dark);
       font-size: 14px;
     }
 
@@ -93,12 +93,13 @@
       justify-content: flex-end;
       align-items: center;
       gap: 10px 24px;
-      min-height: 38px;
+      min-height: 30px;
       flex-wrap: wrap;
+      padding-top: 5px;
     }
 
     .header-contact-bar a {
-      color: var(--white);
+      color: var(--blue-dark);
       text-decoration: none;
       font-weight: 700;
     }
@@ -508,6 +509,9 @@
 
     .faq-list details { padding: 20px 0; }
 
+    /* Keep FAQ answers collapsed until a visitor opens a question. */
+    .faq-list details:not([open]) > :not(summary) { display: none; }
+
     .faq-list summary {
       font-size: 17px;
       color: var(--text);
@@ -646,7 +650,7 @@
 
     @media (max-width: 600px) {
       .header-contact-inner {
-        justify-content: center;
+        justify-content: flex-end;
         gap: 3px 12px;
         padding: 7px 0;
         font-size: 12px;
@@ -686,7 +690,7 @@
       </div>
     </div>
     <div class="container header-inner">
-      <a class="brand" href="#home">StatewidePropertiesGroup.com</a>
+      <a class="brand" href="#home">Statewide Properties LLC</a>
       <nav class="nav" aria-label="Main navigation">
         <a href="#services">Services</a>
         <a href="#commission">1% Commission</a>
@@ -991,6 +995,60 @@
         </div>
         <div class="faq-list">
           <details>
+            <summary>Why do homeowners look for a low real estate commission?</summary>
+            <p>
+              Selling a home can involve substantial expenses, so many homeowners compare real estate commission rates and look for ways to keep more of their equity. Statewide Properties LLC gives homeowners in Queens and Nassau County an opportunity to discuss professional representation with a 1% total listing commission for the listing services described in a written agreement. Every commission arrangement is negotiable.
+            </p>
+          </details>
+          <details>
+            <summary>Can I find a 1% listing agent in Queens, NY?</summary>
+            <p>
+              Statewide Properties LLC offers homeowners in Queens an opportunity to discuss a 1% total listing commission for agreed listing services. If you are searching for a 1% real estate agent, a low-commission realtor, or an affordable listing agent in Queens, contact us to discuss your property, the services you need, and the terms that would be included in a written listing agreement.
+            </p>
+          </details>
+          <details>
+            <summary>Do you offer a low-commission real estate broker in Nassau County?</summary>
+            <p>
+              Our professional representation service area includes Nassau County, NY. Homeowners comparing discount real estate brokers, reduced listing commission options, or low-commission real estate agents in Nassau County can contact us to discuss our 1% total listing commission offer and the services available for their property. Availability and services are confirmed individually.
+            </p>
+          </details>
+          <details>
+            <summary>How much could I save with a 1% listing commission?</summary>
+            <p>
+              Potential savings depend on your home's sale price, the commission rates you compare, the services included, and whether you separately agree to any buyer-agent compensation or other transaction expenses. There is no single savings amount that applies to every home. We can discuss the proposed listing services and commission with you so you can compare your options before signing an agreement.
+            </p>
+          </details>
+          <details>
+            <summary>Is a low-commission listing agent still able to provide professional service?</summary>
+            <p>
+              A lower listing commission does not by itself describe which services are included. Before hiring any low-commission real estate agent or discount real estate broker, ask about pricing guidance, marketing, offer review, communication, and transaction support. Statewide Properties LLC will discuss the services to be provided and document the agreed arrangement in a written listing agreement.
+            </p>
+          </details>
+          <details>
+            <summary>Can I negotiate my real estate commission in New York?</summary>
+            <p>
+              Yes. Real estate commissions are negotiable and are not set by law. Home sellers can compare listing agents, ask what services are included, and discuss the proposed fee before entering into a written agreement. You should also clarify whether any buyer-agent compensation or other expenses would be separate from the listing commission.
+            </p>
+          </details>
+          <details>
+            <summary>What should I compare when choosing a discount real estate broker?</summary>
+            <p>
+              Compare the listing commission, services included, marketing plan, communication, contract terms, cancellation provisions, and any additional costs. A low advertised fee is not enough on its own to determine value. Ask each real estate broker to explain the exact services and costs in writing so you can make an informed decision.
+            </p>
+          </details>
+          <details>
+            <summary>What is the difference between a 1% listing agent and a flat-fee MLS listing?</summary>
+            <p>
+              Statewide Properties LLC offers professional representation in Queens and Nassau County under a written listing agreement. FlatFeeMLSNY.com is a separate flat-fee MLS listing service for homeowners throughout New York State, subject to MLS coverage, eligibility, and package terms. With a flat-fee listing, the homeowner generally handles more of the selling process themselves. Review the specific services before choosing either option.
+            </p>
+          </details>
+          <details>
+            <summary>How can I sell my house and save on commission?</summary>
+            <p>
+              Start by comparing the services and total costs of different selling options. You can ask about a reduced listing commission, discuss what professional representation includes, or explore a separate flat-fee MLS listing if you prefer to manage the sale yourself. Consider any additional compensation or transaction expenses before deciding which approach best fits your needs.
+            </p>
+          </details>
+          <details>
             <summary>How does the 1% total listing commission work?</summary>
             <p>
               The 1% total listing commission is for the listing services specified in
@@ -1162,12 +1220,12 @@
 
   <footer class="site-footer">
     <div class="container footer-inner">
-      <a class="footer-brand" href="#home">StatewidePropertiesGroup.com</a>
+      <a class="footer-brand" href="#home">Statewide Properties LLC</a>
 
       <div class="footer-contact">
         <a href="tel:+19176203605">+1 (917) 620-3605</a>
         <a href="mailto:info@StatewidePropertiesGroup.com">info@StatewidePropertiesGroup.com</a>
-        <span>Broker #10991243046 (STATEWIDE PROPERTIES LLC)</span>
+        <span>Broker #10491214373 (STATEWIDE PROPERTIES LLC)</span>
         <span class="footer-area">Professional representation: Queens and Nassau County, NY</span>
         <a href="https://www.FlatFeeMLSNY.com" target="_blank" rel="noopener noreferrer">Flat-fee MLS listings throughout NY State: FlatFeeMLSNY.com</a>
       </div>
