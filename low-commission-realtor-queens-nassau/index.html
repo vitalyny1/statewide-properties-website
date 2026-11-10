@@ -58,7 +58,7 @@
       background: var(--white);
       font: 16px/1.65 Arial, Helvetica, sans-serif;
     }
-    a { color: var(--red-dark); }
+    a { color: var(--text); }
     .container { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
     header { border-bottom: 1px solid var(--border); background: var(--white); }
     .header-inner {
@@ -75,7 +75,7 @@
       color: var(--red-dark); background: #FFF5F5; border-radius: 30px;
       font-size: 12px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
     }
-    h1, h2, h3 { color: var(--red-dark); line-height: 1.23; letter-spacing: -.35px; }
+    h1, h2, h3 { color: var(--text); line-height: 1.23; letter-spacing: -.35px; }
     h1 { max-width: 850px; margin: 0 auto 18px; font-size: clamp(32px, 5vw, 46px); }
     h2 { margin: 0 0 15px; font-size: clamp(25px, 3.5vw, 34px); }
     h3 { margin: 0 0 9px; font-size: 20px; }
@@ -89,6 +89,7 @@
     }
     .button:hover { background: var(--red-dark); border-color: var(--red-dark); color: var(--white); }
     .button.secondary { color: var(--red-dark); background: var(--white); }
+    .highlight { color: var(--red-dark); font-weight: 800; }
     section { padding: 52px 0; }
     .soft { background: var(--soft); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
     .intro { max-width: 850px; margin: 0 auto; }
@@ -142,7 +143,7 @@
         <p>
           Selling a home does not mean you have to choose between professional
           representation and an affordable listing fee. Statewide Properties LLC
-          offers full-service listing representation with a <strong>1% total listing
+          offers full-service listing representation with a <strong class="highlight">1% total listing
           commission</strong> for sellers in Queens and Nassau County, NY, subject
           to the services and terms agreed in writing.
         </p>
