@@ -695,6 +695,62 @@
       .equity-section { padding: 45px 0; }
       .equity-panel .equity-copy { font-size: 16px; }
     }
+  
+    /* Updated to the site's black, white, and red visual system. */
+    :root {
+      --blue: #D71920;
+      --blue-dark: #B5121B;
+      --blue-light: #FFF5F5;
+      --red: #D71920;
+      --text: #222222;
+      --muted: #4B4B4B;
+      --border: #D8D8D8;
+      --white: #FFFFFF;
+      --section: #FAFAFA;
+    }
+    body { color: var(--text); background: #FFFFFF; }
+    a { color: var(--text); }
+    a:hover { color: var(--red-dark); }
+    .header-contact-bar, .header-contact-bar a { color: var(--text); }
+    .brand, .footer-brand { color: var(--text); }
+    .nav a { color: var(--text); }
+    .nav a:hover { color: var(--red-dark); }
+    .nav .nav-cta, .nav .nav-cta:hover {
+      background: var(--red); border-color: var(--red); color: #FFFFFF;
+    }
+    .hero { background: #FFFFFF; }
+    .eyebrow { color: var(--red-dark); background: #FFF5F5; }
+    h1, h2, h3 { color: var(--text); }
+    .one-percent, .big-number, .hero-callout,
+    .equity-panel .equity-emphasis { color: var(--red); }
+    .button {
+      background: var(--red); border-color: var(--red); color: #FFFFFF;
+    }
+    .button:hover {
+      background: var(--red-dark); border-color: var(--red-dark); color: #FFFFFF;
+    }
+    .button-outline {
+      color: var(--red-dark); background: #FFFFFF; border-color: var(--red);
+    }
+    .button-outline:hover { background: var(--red); color: #FFFFFF; }
+    .equity-section { background: #FAFAFA; }
+    .section-light { background: #FAFAFA; }
+    .card, .commission-panel, .step, .area-card, .contact-form,
+    .calculator-panel { border-color: var(--border); box-shadow: 0 4px 14px rgba(0,0,0,.04); }
+    .card-icon, .commission-number, .diy-panel, .contact-info,
+    .calculator-result { background: #FFF5F5; color: var(--text); }
+    .check-list li::before, .step::before { color: var(--red); }
+    .step::before { background: var(--red); color: #FFFFFF; }
+    summary, .faq-list summary { color: var(--text); }
+    .site-footer { background: #FAFAFA; border-top-color: var(--border); }
+    .footer-contact a { color: var(--text); }
+    .footer-contact a:hover { color: var(--red-dark); }
+    .calculator-result strong { color: var(--red); }
+    .form-row input:focus, .form-row select:focus,
+    .form-row textarea:focus { outline-color: #F2B7B9; border-color: var(--red); }
+    .small-note, .town-list, .local-copy p, .section-heading p,
+    .hero p, .card p, .step p, .area-card p { color: var(--muted); }
+
   </style></head><body>
 <header class="site-header"><div class="header-contact-bar"><div class="container header-contact-inner"><a href="tel:+19176203605">Call: (917) 620-3605</a><a href="mailto:info@StatewidePropertiesGroup.com">info@StatewidePropertiesGroup.com</a></div></div><div class="container header-inner"><a class="brand" href="/">Statewide Properties Group</a><nav class="nav" aria-label="Main navigation">
   <a href="/">Home</a>
