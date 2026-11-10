@@ -553,13 +553,6 @@
       margin: 13px 0 0;
     }
 
-    .contact-layout {
-      display: grid;
-      grid-template-columns: .85fr 1.15fr;
-      gap: 40px;
-      align-items: start;
-    }
-
     .contact-info {
       padding: 30px;
       border-radius: 14px;
@@ -568,51 +561,6 @@
 
     .contact-info p { color: var(--muted); }
     .contact-info a { overflow-wrap: anywhere; }
-
-    .contact-form {
-      padding: 30px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: 0 8px 28px rgba(31, 74, 110, .08);
-      background: var(--white);
-    }
-
-    .form-row { margin-bottom: 17px; }
-
-    .form-row label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .form-row input,
-    .form-row select,
-    .form-row textarea {
-      display: block;
-      width: 100%;
-      border: 1px solid #C9D6E2;
-      border-radius: 7px;
-      padding: 12px 13px;
-      background: var(--white);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 15px;
-    }
-
-    .form-row input:focus,
-    .form-row select:focus,
-    .form-row textarea:focus {
-      outline: 2px solid #A8D1F1;
-      border-color: var(--blue);
-    }
-
-    .form-row textarea {
-      min-height: 125px;
-      resize: vertical;
-    }
-
-    .contact-form .button { width: 100%; }
 
     .site-footer {
       background: #F5F8FB;
@@ -751,7 +699,7 @@
       .button-row .button { width: 100%; }
       .areas-grid { grid-template-columns: 1fr; }
 
-      .area-card, .diy-panel, .contact-info, .contact-form {
+      .area-card, .diy-panel, .contact-info {
         padding: 23px;
       }
 
@@ -893,77 +841,20 @@
       <div class="container">
         <div class="section-heading">
           <h2>Let's Discuss Your Property</h2>
-          <p>Tell us a little about your property and how we can help.</p>
+          <p>Have a question about selling? Call or email us directly.</p>
         </div>
-        <div class="contact-layout">
-          <div class="contact-info">
-            <h3>Contact Statewide Properties Group</h3>
-            <p>
-              Contact us about full-service 1% listing representation in Queens and Nassau County. For flat-fee MLS listing options elsewhere in New York State, visit
-              <a href="https://www.FlatFeeMLSNY.com" target="_blank" rel="noopener noreferrer">FlatFeeMLSNY.com</a>.
-            </p>
-            <p>
-              <strong>Phone</strong><br>
-              <a href="tel:+19176203605">+1 (917) 620-3605</a>
-            </p>
-            <p>
-              <strong>Email</strong><br>
-              <a href="mailto:info@StatewidePropertiesGroup.com">info@StatewidePropertiesGroup.com</a>
-            </p>
-            <p>
-              <strong>Full-service 1% representation</strong><br>
-              Queens and Nassau County, New York
-            </p>
-            <p class="small-note">
-              Submitting an inquiry does not create an agency relationship
-              or commit you to a listing agreement.
-            </p>
-          </div>
-
-          <form class="contact-form"
-                action="https://formsubmit.co/info@StatewidePropertiesGroup.com"
-                method="POST">
-            <input type="hidden" name="_subject" value="New Property Inquiry - Statewide Properties Group">
-            <input type="hidden" name="_next" value="https://statewidepropertiesgroup.com/thank-you">
-            <input type="hidden" name="_template" value="table">
-            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
-
-            <div class="form-row">
-              <label for="name">Your Name *</label>
-              <input type="text" id="name" name="name" autocomplete="name" required>
-            </div>
-            <div class="form-row">
-              <label for="email">Email Address *</label>
-              <input type="email" id="email" name="email" autocomplete="email" required>
-            </div>
-            <div class="form-row">
-              <label for="phone">Phone Number</label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel">
-            </div>
-            <div class="form-row">
-              <label for="location">Property Town or ZIP Code *</label>
-              <input type="text" id="location" name="property_location" required>
-            </div>
-            <div class="form-row">
-              <label for="service">What are you interested in?</label>
-              <select id="service" name="service_interest">
-                <option value="">Choose an option</option>
-                <option>Professional representation — Queens</option>
-                <option>Professional representation — Nassau County</option>
-                <option>Flat-fee MLS listing elsewhere in New York State</option>
-                <option>Other real estate inquiry</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label for="message">Tell Us About Your Property</label>
-              <textarea id="message" name="message" placeholder="Property details, estimated selling date, or questions"></textarea>
-            </div>
-            <button class="button" type="submit">SEND PROPERTY INQUIRY</button>
-            <p class="small-note" style="margin:14px 0 0">
-              Your information will be used to respond to your inquiry.
-              Please do not include sensitive personal or financial information.
-            </p>
-          </form>
+        <div class="contact-info" style="max-width:620px;margin:0 auto;text-align:center">
+          <h3>Statewide Properties LLC</h3>
+          <p>For full-service 1% listing representation in Queens and Nassau County, contact us directly.</p>
+          <p><strong>Call us</strong><br>
+            <a href="tel:+19176203605" style="font-size:22px;font-weight:800">(917) 620-3605</a>
+          </p>
+          <p><strong>Email us</strong><br>
+            <a href="mailto:info@StatewidePropertiesGroup.com" style="font-size:18px;font-weight:800">info@StatewidePropertiesGroup.com</a>
+          </p>
+          <p class="small-note">For flat-fee MLS listing options elsewhere in New York State, visit
+            <a href="https://www.FlatFeeMLSNY.com" target="_blank" rel="noopener noreferrer">FlatFeeMLSNY.com</a>.
+          </p>
         </div>
       </div>
     </section>
@@ -1004,25 +895,6 @@
   <script>
 
     (function () {
-      const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
-      const priceInput = document.getElementById('sale-price');
-      const rateInput = document.getElementById('comparison-rate');
-      const oneFee = document.getElementById('one-percent-fee');
-      const comparisonFee = document.getElementById('comparison-fee');
-      const difference = document.getElementById('fee-difference');
-      function updateCalculator() {
-        const price = Math.max(0, Number(priceInput.value) || 0);
-        const rate = Math.max(0, Math.min(20, Number(rateInput.value) || 0));
-        const feeOne = price * 0.01;
-        const feeCompare = price * rate / 100;
-        oneFee.textContent = money.format(feeOne);
-        comparisonFee.textContent = money.format(feeCompare);
-        difference.textContent = money.format(feeCompare - feeOne);
-      }
-      priceInput.addEventListener('input', updateCalculator);
-      rateInput.addEventListener('input', updateCalculator);
-      updateCalculator();
-
       document.querySelectorAll('a[href^="tel:"]').forEach(function (link) {
         link.addEventListener('click', function () {
           if (typeof window.gtag === 'function') {
@@ -1030,14 +902,13 @@
           }
         });
       });
-      const form = document.querySelector('.contact-form');
-      if (form) {
-        form.addEventListener('submit', function () {
+      document.querySelectorAll('a[href^="mailto:"]').forEach(function (link) {
+        link.addEventListener('click', function () {
           if (typeof window.gtag === 'function') {
-            window.gtag('event', 'inquiry_submit_attempt', { event_category: 'lead', event_label: 'property_contact_form' });
+            window.gtag('event', 'email_click', { event_category: 'lead', event_label: link.href });
           }
         });
-      }
+      });
     })();
     document.getElementById("copyright-year").textContent =
       new Date().getFullYear();
