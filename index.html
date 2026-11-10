@@ -713,8 +713,8 @@
   <header class="site-header">
     <div class="header-contact-bar">
       <div class="container header-contact-inner">
-        <a href="tel:+19176203605">Call: (917) 620-3605</a>
-        <a href="mailto:info@StatewidePropertiesGroup.com">info@StatewidePropertiesGroup.com</a>
+        <span>Call: (917) 620-3605</span>
+        <span>info@StatewidePropertiesGroup.com</span>
       </div>
     </div>
     <div class="container header-inner">
@@ -722,6 +722,7 @@
       <nav class="nav" aria-label="Main navigation">
         <a href="#home">Home</a>
         <a href="#commission">1% Service</a>
+        <a href="#buyers">Buyers & Tenants</a>
         <a href="#diy">Flat Fee MLS</a>
         <a class="nav-cta" href="#contact">Contact</a>
       </nav>
@@ -800,6 +801,42 @@
     </section>
 
 
+    <section class="section-light" id="buyers">
+      <div class="container">
+        <div class="diy-panel">
+          <span class="eyebrow">Buying or Renting Locally?</span>
+          <h2>Personal Help for Buyers and Tenants</h2>
+          <p>
+            Looking for a home or rental in the local area? I can help you find
+            suitable properties, arrange showings, and guide you through the
+            offer or rental application process.
+          </p>
+          <ul class="diy-benefits">
+            <li>Help finding homes and rentals that match your needs.</li>
+            <li>Property showings and local market guidance.</li>
+            <li>Help preparing and submitting an offer when you are ready to buy.</li>
+            <li>Guidance through the rental application and lease process.</li>
+          </ul>
+          <h3>Buyer Commission Rebate</h3>
+          <p>
+            If you purchase a property with me representing you and submit your
+            offer through my brokerage, you may be eligible to receive a portion
+            of the buyer-broker compensation paid to the brokerage back at closing.
+            The amount and terms will be agreed to in writing in advance.
+          </p>
+          <p class="small-note">
+            Any rebate is subject to applicable law, lender and transaction
+            requirements, and the terms of the written buyer representation
+            agreement. No rebate is guaranteed until eligibility and terms are confirmed.
+            Rental services and any applicable fees are discussed separately in advance.
+          </p>
+          <div class="button-row">
+            <a class="button" href="#contact">ASK ABOUT BUYER OR RENTAL SERVICES</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="section-light" id="diy">
       <div class="container">
         <div class="diy-panel">
@@ -847,10 +884,10 @@
           <h3>Statewide Properties LLC</h3>
           <p>For full-service 1% listing representation in Queens and Nassau County, contact us directly.</p>
           <p><strong>Call us</strong><br>
-            <a href="tel:+19176203605" style="font-size:22px;font-weight:800">(917) 620-3605</a>
+            <span style="font-size:22px;font-weight:800">(917) 620-3605</span>
           </p>
           <p><strong>Email us</strong><br>
-            <a href="mailto:info@StatewidePropertiesGroup.com" style="font-size:18px;font-weight:800">info@StatewidePropertiesGroup.com</a>
+            <span style="font-size:18px;font-weight:800">info@StatewidePropertiesGroup.com</span>
           </p>
           <p class="small-note">For flat-fee MLS listing options elsewhere in New York State, visit
             <a href="https://www.FlatFeeMLSNY.com" target="_blank" rel="noopener noreferrer">FlatFeeMLSNY.com</a>.
@@ -865,8 +902,8 @@
       <a class="footer-brand" href="#home">Statewide Properties LLC</a>
 
       <div class="footer-contact">
-        <a href="tel:+19176203605">+1 (917) 620-3605</a>
-        <a href="mailto:info@StatewidePropertiesGroup.com">info@StatewidePropertiesGroup.com</a>
+        <span>+1 (917) 620-3605</span>
+        <span>info@StatewidePropertiesGroup.com</span>
         <span>Broker #10991243046 (STATEWIDE PROPERTIES LLC)</span>
         <span class="footer-area">Full-service 1% listing representation: Queens and Nassau County, NY</span>
         <a href="https://www.FlatFeeMLSNY.com" target="_blank" rel="noopener noreferrer">Flat-fee MLS listings throughout NY State: FlatFeeMLSNY.com</a>
@@ -894,22 +931,6 @@
 
   <script>
 
-    (function () {
-      document.querySelectorAll('a[href^="tel:"]').forEach(function (link) {
-        link.addEventListener('click', function () {
-          if (typeof window.gtag === 'function') {
-            window.gtag('event', 'phone_click', { event_category: 'lead', event_label: link.href });
-          }
-        });
-      });
-      document.querySelectorAll('a[href^="mailto:"]').forEach(function (link) {
-        link.addEventListener('click', function () {
-          if (typeof window.gtag === 'function') {
-            window.gtag('event', 'email_click', { event_category: 'lead', event_label: link.href });
-          }
-        });
-      });
-    })();
     document.getElementById("copyright-year").textContent =
       new Date().getFullYear();
   </script>
