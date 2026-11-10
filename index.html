@@ -624,30 +624,37 @@
 
     /* Footer is intentionally left-aligned for easier reading. */
     .footer-inner {
-      display: block;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 5px 18px;
       text-align: left;
     }
 
     .footer-brand {
-      display: block;
-      margin-bottom: 12px;
+      display: inline-block;
+      margin: 0;
       font-weight: 800;
       color: var(--red);
       text-decoration: none;
-      font-size: 17px;
-      line-height: 1.5;
-      text-align: left;
+      font-size: 15px;
+      line-height: 1.4;
+      white-space: nowrap;
     }
 
     .footer-contact {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 5px;
-      font-size: 13px;
-      line-height: 1.6;
+      flex: 1 1 700px;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: flex-end;
+      gap: 3px 12px;
+      font-size: 12px;
+      line-height: 1.45;
       color: var(--muted);
-      text-align: left;
+      text-align: right;
     }
 
     .footer-contact a { text-decoration: none; }
@@ -655,14 +662,14 @@
 
     .footer-legal {
       width: 100%;
-      margin-top: 16px;
+      margin-top: 9px;
       color: var(--muted);
-      font-size: 12px;
-      line-height: 1.6;
+      font-size: 11px;
+      line-height: 1.45;
       text-align: left;
     }
 
-    .footer-legal p { margin-bottom: 9px; }
+    .footer-legal p { margin-bottom: 6px; }
 
 
     .calculator-panel {
@@ -748,6 +755,21 @@
 
       .header-contact-line.secondary {
         font-size: 10px;
+      }
+
+      .footer-inner {
+        align-items: flex-start;
+      }
+
+      .footer-brand {
+        white-space: normal;
+      }
+
+      .footer-contact {
+        flex-basis: 100%;
+        justify-content: flex-start;
+        text-align: left;
+        gap: 3px 9px;
       }
 
       .container { width: calc(100% - 30px); }
