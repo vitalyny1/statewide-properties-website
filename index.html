@@ -113,10 +113,36 @@
       display: flex;
       justify-content: flex-end;
       align-items: center;
-      gap: 10px 24px;
-      min-height: 30px;
+      min-height: 48px;
+      padding: 5px 0;
+      text-align: right;
+    }
+
+    .header-contact-details {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      line-height: 1.45;
+    }
+
+    .header-contact-line {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
       flex-wrap: wrap;
-      padding-top: 5px;
+      gap: 4px 13px;
+    }
+
+    .header-contact-line.secondary {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .header-contact-line .separator {
+      color: #999999;
+      font-weight: 400;
     }
 
     .header-contact-bar a {
@@ -682,9 +708,21 @@
     @media (max-width: 600px) {
       .header-contact-inner {
         justify-content: flex-end;
-        gap: 3px 12px;
+        min-height: 0;
         padding: 7px 0;
         font-size: 12px;
+      }
+
+      .header-contact-details {
+        max-width: 100%;
+      }
+
+      .header-contact-line {
+        gap: 3px 8px;
+      }
+
+      .header-contact-line.secondary {
+        font-size: 10px;
       }
 
       .container { width: calc(100% - 30px); }
@@ -716,8 +754,18 @@
   <header class="site-header">
     <div class="header-contact-bar">
       <div class="container header-contact-inner">
-        <span>Call: (917) 620-3605</span>
-        <span>info@StatewidePropertiesGroup.com</span>
+        <div class="header-contact-details">
+          <div class="header-contact-line">
+            <a href="tel:+19176203605">+1 (917) 620-3605</a>
+            <span class="separator">|</span>
+            <a href="mailto:info@StatewidePropertiesGroup.com">info@StatewidePropertiesGroup.com</a>
+          </div>
+          <div class="header-contact-line secondary">
+            <span>Broker #10991243046 (STATEWIDE PROPERTIES LLC)</span>
+            <span class="separator">|</span>
+            <span>Full-service 1% listing representation: Queens and Nassau County, NY</span>
+          </div>
+        </div>
       </div>
     </div>
     <div class="container header-inner">
