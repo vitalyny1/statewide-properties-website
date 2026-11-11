@@ -126,7 +126,8 @@ const samples=[
 ];
 const map=L.map('map').setView([40.735,-73.82],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
-let markers=[],center=null,radiusCircle=null,liveRows=[],session=null,profile=null;\nconst zipCoordinateCache=new Map();
+let markers=[],center=null,radiusCircle=null,liveRows=[],session=null,profile=null;
+const zipCoordinateCache=new Map();
 const listEl=document.getElementById('list'),countEl=document.getElementById('count'),statusEl=document.getElementById('status');
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -161,7 +162,8 @@ function render(){
   if(coords)el.addEventListener('click',()=>{map.setView([coords.lat,coords.lng],13);const marker=markers.find(m=>m.getPopup()?.getContent().includes(esc(row.title||'Referral opportunity')));if(marker)marker.openPopup();highlight('live-'+row.id)});
   listEl.appendChild(el);
  });
- const visibleLive=liveRows.filter(row=>{if(cat!=='all'&&String(row.referral_type).toLowerCase()!==cat.toLowerCase())return false;const coords=zipCoordinateCache.get(String(row.zip_code||''));if(center&&coords&&distanceMiles(center,coords)>r)return false;return true;});\n const total=filtered.length+visibleLive.length;
+ const visibleLive=liveRows.filter(row=>{if(cat!=='all'&&String(row.referral_type).toLowerCase()!==cat.toLowerCase())return false;const coords=zipCoordinateCache.get(String(row.zip_code||''));if(center&&coords&&distanceMiles(center,coords)>r)return false;return true;});
+ const total=filtered.length+visibleLive.length;
  countEl.textContent=total+' opportunities ('+filtered.length+' examples'+(visibleLive.length?', '+visibleLive.length+' live':'')+')';
  if(!total)listEl.innerHTML='<div class="empty">No opportunities match. Try a larger radius or another category.</div>';
 }
