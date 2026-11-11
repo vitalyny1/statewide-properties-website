@@ -59,6 +59,16 @@ main{padding:12px 0 28px}
 .workitem p{margin:4px 0;color:#555}
 .workitem button{margin:5px 5px 0 0}
 .workmessage{font-size:12px;color:#555;margin-top:7px;min-height:15px}
+.paycard{margin-top:9px;padding:12px;border:1px solid #b8c9df;background:#f5f8fc;border-radius:4px}
+.paycard h3{margin:0 0 5px;font-size:15px;color:#173f70}
+.payprice{font-size:23px;font-weight:bold;color:#173f70;margin:5px 0}
+.paycard p{font-size:12px;color:#444;margin:5px 0}
+.paycard ul{font-size:12px;margin:7px 0;padding-left:18px;color:#333}
+.paybtn{margin-top:7px;background:#174f86;color:#fff;border:1px solid #123d68;border-radius:4px;padding:9px 13px;font-weight:bold;cursor:pointer}
+.paybtn:hover{background:#103b67}
+.paybtn:disabled{opacity:.6;cursor:default}
+.testunlock{margin-top:8px;padding:9px;border:1px solid #9bbf9b;background:#f0f8f0;color:#234d23;font-size:12px}
+.testlabel{font-size:10px;font-weight:bold;letter-spacing:.04em;color:#805000}
 @media(max-width:780px){.workgrid{grid-template-columns:1fr}}
 @media(max-width:780px){.layout{grid-template-columns:1fr}#map{height:400px}.list{max-height:380px}.navlinks{gap:11px}.field.category,.field.radius{flex:1;width:auto}}
 @media(max-width:440px){.nav{align-items:flex-start;flex-direction:column}.navlinks{flex-wrap:wrap}.field.zip,.field.radius,.field.category{flex-basis:100%}.btn{width:100%}}
@@ -249,9 +259,41 @@ async function loadMyRequests(){
  $('myRequests').innerHTML='';
  if(!data.length){$('myRequests').textContent='You have not requested an introduction yet.';return}
  for(const req of data){
-  const {data:ref}=await db.from('referrals').select('title,city,state,zip_code').eq('id',req.referral_id).maybeSingle();
+  const {data:ref}=await db.from('referrals').select('title,city,state,zip_code,agent_id').eq('id',req.referral_id).maybeSingle();
   const el=document.createElement('div');el.className='workitem';
   el.innerHTML='<strong>'+esc(ref?.title||'Referral')+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+'</span><p>'+esc(req.message||'')+'</p>';
+  if(req.status==='accepted' && ref?.agent_id){
+   const {data:owner}=await db.from('profiles').select('full_name,brokerage').eq('id',ref.agent_id).maybeSingle();
+   const paidKey='rerenet_demo_paid_'+req.id;
+   const card=document.createElement('div');card.className='paycard';
+   const heading=document.createElement('h3');heading.textContent='Your request was accepted!';
+   const price=document.createElement('div');price.className='payprice';price.textContent='$5 contact-unlock fee';
+   const intro=document.createElement('p');intro.textContent='The posting agent accepted your request. In the live version, this one-time fee unlocks the agent’s direct contact details. No subscription and no commission.';
+   const benefits=document.createElement('ul');
+   ['See the posting agent’s contact information','Connect directly to discuss the opportunity','Decide together whether to enter a referral agreement'].forEach(t=>{const li=document.createElement('li');li.textContent=t;benefits.appendChild(li)});
+   const policy=document.createElement('p');policy.textContent='If the opportunity is invalid or the agent does not respond, you may request a review under the contact-protection policy. A completed introduction is not a guarantee of a closed transaction.';
+   const test=document.createElement('div');test.className='testlabel';test.textContent='TEST MODE ONLY · NO MONEY WILL BE CHARGED';
+   const btn=document.createElement('button');btn.type='button';btn.className='paybtn';btn.textContent=localStorage.getItem(paidKey)==='yes'?'Test unlock completed':'Simulate $5 payment — no charge';
+   card.append(heading,price,intro,benefits,policy,test,btn);
+   const unlocked=document.createElement('div');unlocked.className='testunlock';unlocked.style.display=localStorage.getItem(paidKey)==='yes'?'block':'none';
+   const name=document.createElement('strong');name.textContent='TEST CONTACT UNLOCKED';
+   const agent=document.createElement('div');agent.textContent='Posting agent: '+(owner?.full_name||'Agent');
+   const brokerage=document.createElement('div');brokerage.textContent='Brokerage: '+(owner?.brokerage||'Not provided');
+   const note=document.createElement('p');note.textContent='This test confirms the accepted-request and unlock screens. Private phone and email remain protected until real Stripe payment verification is connected.';
+   unlocked.append(name,agent,brokerage,note);
+   btn.addEventListener('click',()=>{
+    localStorage.setItem(paidKey,'yes');
+    btn.textContent='Test unlock completed';
+    btn.disabled=true;
+    unlocked.style.display='block';
+   });
+   card.appendChild(unlocked);
+   el.appendChild(card);
+  }else if(req.status==='pending'){
+   const wait=document.createElement('p');wait.textContent='Waiting for the posting agent to review your request. You will only see the $5 contact-unlock option if the request is accepted.';el.appendChild(wait);
+  }else if(req.status==='declined'){
+   const wait=document.createElement('p');wait.textContent='This request was declined. No payment is due.';el.appendChild(wait);
+  }
   $('myRequests').appendChild(el);
  }
 }
