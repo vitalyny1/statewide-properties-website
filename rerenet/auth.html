@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Realtor Sign In | ReReNet</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--ink:#17191c;--green:#356b45;--soft:#f1f3f1;--line:#e1e5e1;--muted:#68716b}
+*{box-sizing:border-box}body{margin:0;background:#f7f9f7;color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}a{color:var(--green);text-decoration:none}.wrap{width:min(1080px,calc(100% - 36px));margin:auto}
+header{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center}.nav{display:flex;justify-content:space-between;align-items:center}.brand{font-size:25px;font-weight:850;letter-spacing:-1px;color:var(--ink)}.brand span{color:var(--green)}.nav a:last-child{font-size:14px;font-weight:700}
+main{min-height:calc(100vh - 70px);display:grid;place-items:center;padding:36px 0}.panel{width:min(440px,100%);background:#fff;border:1px solid var(--line);border-radius:15px;padding:30px;box-shadow:0 8px 30px #17251a0b}.eyebrow{font-size:11px;font-weight:850;letter-spacing:1.2px;color:var(--green);text-transform:uppercase}.panel h1{font-size:29px;letter-spacing:-.8px;margin:7px 0}.sub{color:var(--muted);margin:0 0 23px}.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--soft);padding:4px;border-radius:8px;margin-bottom:21px}.tabs button{border:0;background:transparent;padding:10px;border-radius:6px;font:inherit;font-weight:700;color:var(--muted);cursor:pointer}.tabs button.active{background:#fff;color:var(--ink);box-shadow:0 1px 4px #00000012}.field{display:flex;flex-direction:column;gap:6px;margin:14px 0}.field label{font-size:13px;font-weight:750}.field input{height:46px;border:1px solid #cfd6d0;border-radius:7px;padding:0 12px;font:inherit;width:100%}.submit{width:100%;height:47px;background:var(--green);color:white;border:0;border-radius:7px;font:inherit;font-weight:800;margin-top:8px;cursor:pointer}.message{display:none;margin-top:15px;padding:12px;border-radius:7px;background:#f1f5f1;color:#344b38;font-size:13px}.fine{font-size:12px;color:var(--muted);margin:17px 0 0;text-align:center}.back{display:block;text-align:center;margin-top:19px;font-size:13px;font-weight:700}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><a class="brand" href="index.html">ReRe<span>Net</span></a><a href="browse.html">Browse opportunities</a></div></header>
+<main class="wrap">
+<section class="panel">
+<div class="eyebrow">For real estate professionals</div>
+<h1 id="heading">Welcome to ReReNet</h1>
+<p class="sub" id="subheading">Sign in or create an account to connect with agents and referrals.</p>
+<div class="tabs"><button type="button" class="active" id="loginTab">Sign in</button><button type="button" id="signupTab">Create account</button></div>
+<form id="authForm">
+<div class="field"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required></div>
+<button class="submit" id="submit" type="submit">Sign in</button>
+</form>
+<div class="message" id="message" role="status"></div>
+<p class="fine">Your account lets you participate in ReReNet. Agent and brokerage details can be added in a later step.</p>
+<a class="back" href="browse.html">← Back to referrals</a>
+</section>
+</main>
+<script>
+const supabaseUrl='https://pcnvlshrrspckeeqmsws.supabase.co';
+const supabaseKey='sb_publishable_n_JjITp9BBsum5M2MQNXbw_-XTMNeZW';
+const db=window.supabase.createClient(supabaseUrl,supabaseKey);
+let mode='login';
+const loginTab=document.getElementById('loginTab'),signupTab=document.getElementById('signupTab');
+const heading=document.getElementById('heading'),subheading=document.getElementById('subheading'),submit=document.getElementById('submit'),password=document.getElementById('password'),message=document.getElementById('message');
+function setMode(next){mode=next;loginTab.classList.toggle('active',mode==='login');signupTab.classList.toggle('active',mode==='signup');heading.textContent=mode==='login'?'Welcome back':'Create your ReReNet account';subheading.textContent=mode==='login'?'Sign in to continue to ReReNet.':'Create an account to connect with agents and referrals.';submit.textContent=mode==='login'?'Sign in':'Create account';password.autocomplete=mode==='login'?'current-password':'new-password';message.style.display='none';}
+loginTab.addEventListener('click',()=>setMode('login'));signupTab.addEventListener('click',()=>setMode('signup'));
+document.getElementById('authForm').addEventListener('submit',async e=>{e.preventDefault();submit.disabled=true;submit.textContent='Please wait…';message.style.display='none';const email=document.getElementById('email').value.trim();const pass=password.value;let result;if(mode==='signup'){result=await db.auth.signUp({email,password:pass,options:{emailRedirectTo:location.origin+location.pathname}});}else{result=await db.auth.signInWithPassword({email,password:pass});}submit.disabled=false;submit.textContent=mode==='login'?'Sign in':'Create account';if(result.error){message.textContent=result.error.message;message.style.display='block';return;}if(mode==='signup'&&!result.data.session){message.textContent='Account created. Please check your email and confirm your address before signing in.';}else{message.textContent='You are signed in. Referral posting will be the next feature we add.';}message.style.display='block';});
+db.auth.getSession().then(({data})=>{if(data.session){message.textContent='You are already signed in.';message.style.display='block';}});
+</script>
+</body>
+</html>
