@@ -67,7 +67,7 @@ function render(){
  const total=filtered.length+liveRows.length;countEl.textContent=total+' opportunities ('+filtered.length+' examples'+(liveRows.length?', '+liveRows.length+' from database':'')+')';
  if(!total)listEl.innerHTML='<div class="empty">No sample opportunities match. Try a larger radius or another category.</div>';
 }
-function drawRadius(){if(radiusCircle)map.removeLayer(radiusCircle);if(center)radiusCircle=L.circle(center,{radius:Number(document.getElementById('radius').value)*1609.34,color:'#16834b',fillColor:'#16834b',fillOpacity:.07,weight:2}).addTo(map)}
+function drawRadius(){if(radiusCircle)map.removeLayer(radiusCircle);if(center)radiusCircle=L.circle(center,{radius:Number(document.getElementById('radius').value)*1609.34,color:'#16834b',fillColor:'#16834b',fillOpacity:.16,weight:3,dashArray:'8 6'}).addTo(map)}
 document.getElementById('category').addEventListener('change',render);
 document.getElementById('radius').addEventListener('change',()=>{if(center){samples.forEach(o=>o.distance=distanceMiles(center,o));render();drawRadius()}});
 document.getElementById('searchForm').addEventListener('submit',async e=>{
