@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Browse Referrals | ReReNet</title>
+<style>
+:root{--ink:#17191c;--green:#356b45;--soft:#f1f3f1;--line:#e1e5e1;--muted:#68716b}
+*{box-sizing:border-box}body{margin:0;background:#fafbfa;color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(1160px,calc(100% - 36px));margin:auto}
+header{height:70px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center}.nav{display:flex;justify-content:space-between;align-items:center}.brand{font-size:25px;font-weight:850;letter-spacing:-1px}.brand span{color:var(--green)}.navlinks{display:flex;gap:24px;align-items:center;font-size:14px}.navlinks a:first-child{font-weight:750;color:var(--green)}
+main{padding:34px 0 60px}.intro h1{font-size:34px;letter-spacing:-1px;margin:0 0 5px}.intro p{color:var(--muted);margin:0 0 24px}
+.search{background:white;border:1px solid var(--line);border-radius:13px;padding:18px;display:flex;gap:14px;align-items:end;box-shadow:0 4px 18px #17251a08}.field{display:flex;flex-direction:column;gap:6px;min-width:0}.field.zip{flex:1}.field.radius{width:190px}.field label{font-size:12px;font-weight:750;color:#454d47}.field input,.field select{height:43px;padding:0 12px;border:1px solid #cfd6d0;border-radius:7px;background:white;font:inherit;width:100%}.btn{height:43px;padding:0 20px;border:0;border-radius:7px;background:var(--green);color:white;font-weight:750;cursor:pointer}.resultshead{display:flex;justify-content:space-between;align-items:center;margin:26px 0 13px}.resultshead h2{font-size:19px;margin:0}.count{color:var(--muted);font-size:13px}
+.layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;align-items:stretch}.map{position:relative;min-height:485px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background-color:#e9eee8;background-image:linear-gradient(35deg,transparent 47%,#d5dfd4 48%,#d5dfd4 50%,transparent 51%),linear-gradient(115deg,transparent 46%,#d5dfd4 47%,#d5dfd4 49%,transparent 50%),linear-gradient(#dfe8dd 1px,transparent 1px),linear-gradient(90deg,#dfe8dd 1px,transparent 1px);background-size:180px 150px,220px 190px,42px 42px,42px 42px}
+.maplabel{position:absolute;top:15px;left:15px;background:#fff;padding:8px 11px;border-radius:7px;font-size:12px;font-weight:750;box-shadow:0 2px 8px #00000010}.mapnote{position:absolute;bottom:12px;left:12px;right:12px;text-align:center;background:#ffffffdb;padding:7px;border-radius:6px;color:#667067;font-size:11px}
+.pin{position:absolute;transform:translate(-50%,-50%);background:var(--green);color:white;border:3px solid white;border-radius:50% 50% 50% 0;width:34px;height:34px;rotate:-45deg;box-shadow:0 2px 7px #0003;display:grid;place-items:center;font-size:11px;font-weight:800}.pin span{rotate:45deg}.p1{left:29%;top:33%}.p2{left:61%;top:47%}.p3{left:43%;top:68%}.p4{left:76%;top:27%}.area{position:absolute;border:2px dashed #356b4577;border-radius:50%;width:245px;height:245px;left:42%;top:48%;transform:translate(-50%,-50%);background:#356b450c}
+.list{display:flex;flex-direction:column;gap:11px}.listing{background:#fff;border:1px solid var(--line);border-radius:11px;padding:15px}.listingtop{display:flex;justify-content:space-between;gap:10px;align-items:center}.type{font-size:10px;letter-spacing:.6px;font-weight:850;color:var(--green);background:#edf4ee;padding:4px 7px;border-radius:4px}.distance{font-size:12px;color:var(--muted)}.listing h3{font-size:16px;margin:9px 0 3px}.location{font-size:13px;color:var(--muted)}.details{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid #edf0ed;font-size:12px;color:var(--muted)}.view{font-weight:750;color:var(--green)}.empty{display:none;margin-top:14px;padding:14px;border-radius:8px;background:#f4f6f4;color:var(--muted);font-size:13px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.map{min-height:330px}.search{flex-wrap:wrap}.field.zip{flex-basis:100%}.field.radius{flex:1;width:auto}.navlinks{gap:12px}.intro h1{font-size:28px}}
+@media(max-width:440px){.navlinks a:not(:last-child){display:none}.search{align-items:stretch}.field.radius{flex-basis:100%}.btn{width:100%}.resultshead{align-items:flex-start;flex-direction:column;gap:3px}}
+</style>
+</head>
+<body>
+<header><div class="wrap nav"><a class="brand" href="index.html">ReRe<span>Net</span></a><nav class="navlinks"><a href="browse.html">Browse Referrals</a><a href="index.html#how">How It Works</a><a href="index.html">Home</a></nav></div></header>
+<main class="wrap">
+<div class="intro"><h1>Find referrals near you</h1><p>Search by ZIP code to discover buyer and seller referrals within driving distance.</p></div>
+<form class="search" id="searchForm">
+<div class="field zip"><label for="zip">Your ZIP code</label><input id="zip" inputmode="numeric" maxlength="5" placeholder="Enter ZIP code" pattern="[0-9]{5}" required></div>
+<div class="field radius"><label for="radius">Search radius</label><select id="radius"><option>10</option><option selected>25</option><option>50</option><option>100</option></select></div>
+<button class="btn" type="submit">Search Area</button>
+</form>
+<div class="resultshead"><h2>Referral opportunities</h2><div class="count" id="count">4 example opportunities</div></div>
+<div class="layout">
+<div class="map" aria-label="Illustrative map preview with sample referral pins"><div class="maplabel">Map view · Example locations</div><div class="area"></div><div class="pin p1"><span>1</span></div><div class="pin p2"><span>2</span></div><div class="pin p3"><span>3</span></div><div class="pin p4"><span>4</span></div><div class="mapnote">Illustrative map for layout preview — live map and distance calculations will be connected later.</div></div>
+<div><div class="list" id="list">
+<article class="listing"><div class="listingtop"><span class="type">BUYER REFERRAL</span><span class="distance">Example · 8 miles</span></div><h3>Buyer relocating to the area</h3><div class="location">Queens, NY · 11375</div><div class="details"><span>Posted recently</span><a class="view" href="#" onclick="return false">View details →</a></div></article>
+<article class="listing"><div class="listingtop"><span class="type">SELLER REFERRAL</span><span class="distance">Example · 17 miles</span></div><h3>Homeowner planning a sale</h3><div class="location">Great Neck, NY · 11021</div><div class="details"><span>Posted recently</span><a class="view" href="#" onclick="return false">View details →</a></div></article>
+<article class="listing"><div class="listingtop"><span class="type">BUYER REFERRAL</span><span class="distance">Example · 22 miles</span></div><h3>Pre-approved first-time buyer</h3><div class="location">Hicksville, NY · 11801</div><div class="details"><span>Posted recently</span><a class="view" href="#" onclick="return false">View details →</a></div></article>
+<article class="listing"><div class="listingtop"><span class="type">SELLER REFERRAL</span><span class="distance">Example · 39 miles</span></div><h3>Seller considering a move</h3><div class="location">Stamford, CT · 06902</div><div class="details"><span>Posted recently</span><a class="view" href="#" onclick="return false">View details →</a></div></article>
+</div><div class="empty" id="empty">This is a screen preview. ZIP-based distance filtering will work once real referral locations and map services are connected.</div></div>
+</div>
+</main>
+<script>
+document.getElementById('searchForm').addEventListener('submit',function(e){e.preventDefault();const z=document.getElementById('zip').value.trim();if(!/^\d{5}$/.test(z))return;document.getElementById('count').textContent='Example results · ZIP '+z+' · '+document.getElementById('radius').value+' mile radius';document.getElementById('empty').style.display='block';});
+</script>
+</body>
+</html>
