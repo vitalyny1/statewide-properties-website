@@ -271,7 +271,7 @@ async function loadMyRequests(){
    const intro=document.createElement('p');intro.textContent='The posting agent accepted your request. In the live version, this one-time fee unlocks the agent’s direct contact details. No subscription and no commission.';
    const benefits=document.createElement('ul');
    ['See the posting agent’s contact information','Connect directly to discuss the opportunity','Decide together whether to enter a referral agreement'].forEach(t=>{const li=document.createElement('li');li.textContent=t;benefits.appendChild(li)});
-   const policy=document.createElement('p');policy.textContent='If the opportunity is invalid or the agent does not respond, you may request a review under the contact-protection policy. A completed introduction is not a guarantee of a closed transaction.';
+   const policy=document.createElement('p');policy.textContent='If the opportunity is invalid or the agent does not respond, contact ReReNet support so the case can be reviewed. The exact refund or credit terms will be published before launch. An introduction is not a guarantee of a closed transaction.';
    const test=document.createElement('div');test.className='testlabel';test.textContent='TEST MODE ONLY · NO MONEY WILL BE CHARGED';
    const btn=document.createElement('button');btn.type='button';btn.className='paybtn';btn.textContent=localStorage.getItem(paidKey)==='yes'?'Test unlock completed':'Simulate $5 payment — no charge';
    card.append(heading,price,intro,benefits,policy,test,btn);
