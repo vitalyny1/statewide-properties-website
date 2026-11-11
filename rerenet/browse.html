@@ -4,6 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>Browse Referrals | ReReNet</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{--ink:#17191c;--green:#356b45;--soft:#f1f3f1;--line:#e1e5e1;--muted:#68716b}
 *{box-sizing:border-box}body{margin:0;background:#fafbfa;color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Arial,sans-serif}a{color:inherit;text-decoration:none}.wrap{width:min(1160px,calc(100% - 36px));margin:auto}
@@ -27,19 +28,38 @@ main{padding:34px 0 60px}.intro h1{font-size:34px;letter-spacing:-1px;margin:0 0
 <div class="field radius"><label for="radius">Search radius</label><select id="radius"><option>10</option><option selected>25</option><option>50</option><option>100</option></select></div>
 <button class="btn" type="submit">Search Area</button>
 </form>
-<div class="resultshead"><h2>Referral opportunities</h2><div class="count" id="count">4 example opportunities</div></div>
+<div class="resultshead"><h2>Referral opportunities</h2><div class="count" id="count">Loading live opportunities…</div></div>
 <div class="layout">
 <div class="map" aria-label="Illustrative map preview with sample referral pins"><div class="maplabel">Map view · Example locations</div><div class="area"></div><div class="pin p1"><span>1</span></div><div class="pin p2"><span>2</span></div><div class="pin p3"><span>3</span></div><div class="pin p4"><span>4</span></div><div class="mapnote">Illustrative map for layout preview — live map and distance calculations will be connected later.</div></div>
-<div><div class="list" id="list">
-<article class="listing"><div class="listingtop"><span class="type">BUYER REFERRAL</span><span class="distance">Example · 8 miles</span></div><h3>Buyer relocating to the area</h3><div class="location">Queens, NY · 11375</div><div class="details"><span>Posted recently</span><a class="view" href="#" onclick="return false">View details →</a></div></article>
-<article class="listing"><div class="listingtop"><span class="type">SELLER REFERRAL</span><span class="distance">Example · 17 miles</span></div><h3>Homeowner planning a sale</h3><div class="location">Great Neck, NY · 11021</div><div class="details"><span>Posted recently</span><a class="view" href="#" onclick="return false">View details →</a></div></article>
-<article class="listing"><div class="listingtop"><span class="type">BUYER REFERRAL</span><span class="distance">Example · 22 miles</span></div><h3>Pre-approved first-time buyer</h3><div class="location">Hicksville, NY · 11801</div><div class="details"><span>Posted recently</span><a class="view" href="#" onclick="return false">View details →</a></div></article>
-<article class="listing"><div class="listingtop"><span class="type">SELLER REFERRAL</span><span class="distance">Example · 39 miles</span></div><h3>Seller considering a move</h3><div class="location">Stamford, CT · 06902</div><div class="details"><span>Posted recently</span><a class="view" href="#" onclick="return false">View details →</a></div></article>
-</div><div class="empty" id="empty">This is a screen preview. ZIP-based distance filtering will work once real referral locations and map services are connected.</div></div>
+<div><div class="list" id="list"><div class="empty" style="display:block">Loading referrals…</div></div><div class="empty" id="empty" style="display:none"></div></div>
 </div>
 </main>
 <script>
-document.getElementById('searchForm').addEventListener('submit',function(e){e.preventDefault();const z=document.getElementById('zip').value.trim();if(!/^\d{5}$/.test(z))return;document.getElementById('count').textContent='Example results · ZIP '+z+' · '+document.getElementById('radius').value+' mile radius';document.getElementById('empty').style.display='block';});
+const supabaseUrl = 'https://pcnvlshrrspckeeqmsws.supabase.co';
+const supabaseKey = 'sb_publishable_n_JjITp9BBsum5M2MQNXbw_-XTMNeZW';
+const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+const listEl = document.getElementById('list');
+const countEl = document.getElementById('count');
+function safe(value){return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function renderRows(rows){
+  countEl.textContent = rows.length + (rows.length === 1 ? ' opportunity' : ' opportunities');
+  if(!rows.length){listEl.innerHTML='<div class="empty" style="display:block">No active referrals yet. Check back soon!</div>';return;}
+  listEl.innerHTML = rows.map(row => {
+    const kind = safe(row.referral_type).toUpperCase();
+    const place = [row.city,row.state].filter(Boolean).map(safe).join(', ');
+    const zip = row.zip_code ? ' · '+safe(row.zip_code) : '';
+    const description = safe(row.description || 'Contact the posting agent for more information.');
+    const date = row.created_at ? new Date(row.created_at).toLocaleDateString() : 'Recently';
+    return '<article class="listing"><div class="listingtop"><span class="type">'+kind+' REFERRAL</span><span class="distance">ReReNet opportunity</span></div><h3>'+kind+' referral opportunity</h3><div class="location">'+place+zip+'</div><p>'+description+'</p><div class="details"><span>Posted '+date+'</span><span class="view">Details available after agent connection</span></div></article>';
+  }).join('');
+}
+async function loadReferrals(){
+  const {data,error} = await db.from('referrals').select('id,referral_type,city,state,zip_code,description,created_at').eq('status','active').order('created_at',{ascending:false});
+  if(error){console.error('Could not load referrals:',error);countEl.textContent='Unable to load opportunities';listEl.innerHTML='<div class="empty" style="display:block">We could not load referrals right now. Please refresh and try again.</div>';return;}
+  renderRows(data || []);
+}
+document.getElementById('searchForm').addEventListener('submit',function(e){e.preventDefault();const z=document.getElementById('zip').value.trim();if(!/^\d{5}$/.test(z))return;document.getElementById('count').textContent='Showing live opportunities · ZIP '+z+' · '+document.getElementById('radius').value+' mile radius';document.getElementById('empty').style.display='block';document.getElementById('empty').textContent='ZIP and radius filtering is the next feature; current listings are loaded from the database.';});
+loadReferrals();
 </script>
 </body>
 </html>
