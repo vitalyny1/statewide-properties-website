@@ -28,6 +28,7 @@ main{min-height:calc(100vh - 70px);padding:25px 0}.panel{width:min(460px,100%);m
 <div class="field"><label for="brokerage">Brokerage (optional)</label><input id="brokerage" type="text" autocomplete="organization" maxlength="120" placeholder="Your brokerage"></div>
 </div>
 <div class="field"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" placeholder="you@example.com" required></div>
+<div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" minlength="8" placeholder="At least 8 characters" required></div>
 <button class="submit" id="submit" type="submit">Email me a sign-in link</button>
 </form>
 <div class="message" id="message" role="status" aria-live="polite"></div>
@@ -51,8 +52,9 @@ function setMode(next){
   signupTab.classList.toggle('active',mode==='signup');
   profileFields.classList.toggle('hidden',mode!=='signup');
   heading.textContent=mode==='login'?'Welcome back':'Create your ReReNet account';
-  subheading.textContent=mode==='login'?'Enter your email and we will send you a secure sign-in link.':'Create your free agent account. No password is needed.';
-  submit.textContent=mode==='login'?'Email me a sign-in link':'Create account and email me a link';
+  subheading.textContent=mode==='login'?'Sign in with your email and password.':'Create your free agent account with an email and password.';
+  document.getElementById('password').autocomplete=mode==='login'?'current-password':'new-password';
+  submit.textContent=mode==='login'?'Sign in':'Create account';
   message.style.display='none';
 }
 loginTab.addEventListener('click',()=>setMode('login'));
@@ -60,32 +62,35 @@ signupTab.addEventListener('click',()=>setMode('signup'));
 document.getElementById('authForm').addEventListener('submit',async e=>{
   e.preventDefault();
   const email=document.getElementById('email').value.trim().toLowerCase();
+  const password=document.getElementById('password').value;
   const fullName=document.getElementById('fullName').value.trim();
   const phone=document.getElementById('phone').value.trim();
   const zip=document.getElementById('zip').value.trim();
   const brokerage=document.getElementById('brokerage').value.trim();
+  if(password.length<8){showMessage('Password must be at least 8 characters.');return;}
   if(mode==='signup'&&!fullName){showMessage('Please enter your full name.');return;}
   if(mode==='signup'&&zip&&!/^[0-9]{5}(-[0-9]{4})?$/.test(zip)){showMessage('Please enter a valid ZIP code.');return;}
   submit.disabled=true;
-  submit.textContent='Sending email…';
+  submit.textContent=mode==='login'?'Signing in…':'Creating account…';
   message.style.display='none';
-  const options={emailRedirectTo:location.origin+location.pathname};
-  if(mode==='signup'){
-    options.shouldCreateUser=true;
-    options.data={full_name:fullName,phone,zip_code:zip,brokerage};
-  }else{
-    options.shouldCreateUser=false;
-  }
   try{
-    const {error}=await db.auth.signInWithOtp({email,options});
-    if(error) throw error;
-    showMessage('Check your inbox. We sent a secure sign-in link to '+email+'. Open it on this device to finish signing in. If you do not see it, check your spam folder.');
-    submit.textContent='Email sent';
+    let result;
+    if(mode==='signup'){
+      result=await db.auth.signUp({email,password,options:{emailRedirectTo:'https://rerenet.pages.dev/auth.html',data:{full_name:fullName,phone,zip_code:zip,brokerage}}});
+    }else{
+      result=await db.auth.signInWithPassword({email,password});
+    }
+    if(result.error) throw result.error;
+    if(mode==='signup'&&!result.data.session){
+      showMessage('Account created. Check your email to confirm your address. You can then sign in with your password.');
+    }else{
+      showSignedIn(result.data.session);
+    }
   }catch(error){
-    showMessage(error.message||'We could not send the email. Please try again.');
-    submit.textContent=mode==='login'?'Email me a sign-in link':'Create account and email me a link';
+    showMessage(error.message||'We could not complete sign-in. Please try again.');
   }finally{
     submit.disabled=false;
+    submit.textContent=mode==='login'?'Sign in':'Create account';
   }
 });
 function showSignedIn(session){
