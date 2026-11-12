@@ -29,7 +29,7 @@ main{padding:12px 0 28px}
 .status{font-size:12px;color:#666;align-self:center;flex-basis:100%;min-height:16px}
 .count{color:#666;font-size:12px}
 #map{height:min(76vh,760px);min-height:480px;width:100%;background:#eee}
-.map-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(320px,.85fr);gap:12px;align-items:start;margin-top:10px}
+.map-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(420px,3fr);gap:12px;align-items:start;margin-top:10px}
 .map-layout>.panel{min-width:0}
 .map-layout .workspace{margin:0;min-width:0;max-height:76vh;overflow:auto}
 .map-layout .workspace summary{position:sticky;top:0;z-index:2}
@@ -106,34 +106,32 @@ main{padding:12px 0 28px}
 <div class="map-layout">
 <section class="panel"><div id="map" aria-label="Interactive map of referral opportunities"></div><div class="mapfoot">Map data © OpenStreetMap contributors. Hover over a marker for a preview; click to view details.</div></section>
 <details id="workspace" class="workspace" open style="display:none">
-  <summary>Agent tools — post an opportunity, manage requests, and open messages</summary>
+  <summary>Agent Tools</summary>
   <div class="workgrid">
     <form id="postForm" class="workpanel">
-      <h2>Post an opportunity</h2>
-      <label>Referral type<select id="postType"><option>Buyer</option><option>Seller</option><option>Tenant</option></select></label>
+      <h2>1. Post an Opportunity</h2>
+      <label>Opportunity type<select id="postType"><option>Buyer</option><option>Seller</option><option>Tenant</option></select></label>
       <label>Short title<input id="postTitle" maxlength="120" placeholder="e.g. Buyer seeking a home in Queens" required></label>
       <label>City<input id="postCity" maxlength="100" placeholder="City" required></label>
       <label>State<input id="postState" maxlength="2" placeholder="NY" required></label>
       <label>ZIP code<input id="postZip" maxlength="10" placeholder="ZIP code" required></label>
       <label>Details<textarea id="postDescription" maxlength="2000" rows="3" placeholder="Share general details. Do not include the client's name or contact information."></textarea></label>
-      <button class="btn" id="postBtn" type="submit">Post opportunity</button>
+      <button class="btn" id="postBtn" type="submit">Post Opportunity</button>
       <div class="workmessage" id="postMessage" role="status"></div>
     </form>
     <section class="workpanel">
-      <h2>My Posted Opportunities</h2>
+      <h2>2. My Opportunities</h2>
+      <h3>Opportunities I Posted</h3>
       <div id="myReferrals" class="worklist">Sign in to view your opportunities.</div>
-    </section>
-    <section class="workpanel">
-      <h2>Requests on my opportunities</h2>
+      <h3>Requests From Other Agents</h3>
       <div id="incomingRequests" class="worklist">Sign in to view requests.</div>
     </section>
-    <section class="workpanel">
-      <h2>Opportunities Given to Me / My Requests</h2>
-      <div id="myRequests" class="worklist">Sign in to view opportunities.</div>
-    </section>
     <section class="workpanel conversations-panel">
-      <h2>My Conversations</h2>
-      <div class="workmessage">Each accepted connection has its own private message thread. Conversations are sorted by latest activity.</div>
+      <h2>3. Connections &amp; Messages</h2>
+      <h3>Opportunities I Requested</h3>
+      <div id="myRequests" class="worklist">Sign in to view your requests.</div>
+      <h3>Accepted Connections &amp; Conversations</h3>
+      <div class="workmessage">Open a connection to read and send private messages.</div>
       <div id="myConversations" class="conversation-list">Sign in to view conversations.</div>
     </section>
   </div>
