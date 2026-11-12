@@ -31,7 +31,7 @@ main{padding:12px 0 28px}
 #map{height: min(76vh, 760px);min-height:480px;width:100%;background:#eee}
 .mapfoot{padding:7px 10px;color:#666;font-size:11px;border-top:1px solid #ccc}
 .leaflet-popup-content-wrapper{max-height:65vh;overflow-y:auto}
-.map-popup-title{cursor:grab;user-select:none;touch-action:none}.map-popup-title:active{cursor:grabbing}\n.leaflet-popup-content{min-width:190px;max-width:280px;max-height:60vh;overflow-y:auto}
+\n.leaflet-popup-content{min-width:190px;max-width:280px;max-height:60vh;overflow-y:auto}
 .map-popup-title{font-weight:bold;color:#0000EE;margin-bottom:5px}
 .map-popup-meta{font-size:12px;color:#666;margin-bottom:6px}
 .map-popup-detail{font-size:13px;margin-bottom:8px}
@@ -153,29 +153,34 @@ function popupHtml(row,isLive){
 }
 map.on('popupopen',event=>{
  const popupElement=event.popup.getElement();
- const dragHandle=popupElement?.querySelector('.map-popup-title');
- if(dragHandle){
-  dragHandle.addEventListener('pointerdown',e=>{
-   if(e.button!==0)return;
+ const popupFrame=popupElement?.querySelector('.leaflet-popup-content-wrapper');
+ if(popupFrame){
+  popupFrame.style.border='2px solid #777';
+  popupFrame.style.cursor='default';
+  popupFrame.addEventListener('pointerdown',e=>{
+   // Drag only from the popup frame/border, not from fields, buttons, or text.
+   if(e.button!==0 || e.target!==popupFrame)return;
    e.preventDefault();e.stopPropagation();
    const start=map.latLngToContainerPoint(event.popup.getLatLng());
    const origin={x:e.clientX,y:e.clientY};
    const wasDragging=map.dragging.enabled();
    if(wasDragging)map.dragging.disable();
-   dragHandle.setPointerCapture(e.pointerId);
+   popupFrame.style.cursor='grabbing';
+   popupFrame.setPointerCapture(e.pointerId);
    const move=ev=>{
     const point=L.point(start.x+ev.clientX-origin.x,start.y+ev.clientY-origin.y);
     event.popup.setLatLng(map.containerPointToLatLng(point));
    };
    const finish=()=>{
-    dragHandle.removeEventListener('pointermove',move);
-    dragHandle.removeEventListener('pointerup',finish);
-    dragHandle.removeEventListener('pointercancel',finish);
+    popupFrame.removeEventListener('pointermove',move);
+    popupFrame.removeEventListener('pointerup',finish);
+    popupFrame.removeEventListener('pointercancel',finish);
+    popupFrame.style.cursor='default';
     if(wasDragging)map.dragging.enable();
    };
-   dragHandle.addEventListener('pointermove',move);
-   dragHandle.addEventListener('pointerup',finish);
-   dragHandle.addEventListener('pointercancel',finish);
+   popupFrame.addEventListener('pointermove',move);
+   popupFrame.addEventListener('pointerup',finish);
+   popupFrame.addEventListener('pointercancel',finish);
   });
  }
 
