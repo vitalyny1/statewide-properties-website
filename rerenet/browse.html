@@ -48,6 +48,10 @@ main{padding:12px 0 28px}
 .workspace{margin:12px 0 16px;border:1px solid #ccc;background:#fff}.workspace summary{cursor:pointer;font-weight:bold;color:#0000EE;padding:9px 10px;background:#eee}.workspace[open] summary{border-bottom:1px solid #ccc}
 .workspacehead{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;background:#eee;border-bottom:1px solid #ccc}
 .workgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:10px}
+.workpanel.conversations-panel{grid-column:1/-1}
+.conversation-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.conversation-list>.workitem{border:1px solid #ddd;padding:9px;min-width:0}
+@media(max-width:560px){.conversation-list{grid-template-columns:1fr}}
 .workpanel{border:1px solid #ddd;padding:10px;min-width:0}
 .workpanel h2{font-size:15px;margin:0 0 9px;color:#0000EE}
 .workpanel label{display:flex;flex-direction:column;gap:3px;margin:8px 0;font-size:12px;font-weight:bold}
@@ -124,8 +128,13 @@ main{padding:12px 0 28px}
       <div id="incomingRequests" class="worklist">Sign in to view requests.</div>
     </section>
     <section class="workpanel">
-      <h2>My requests to other agents</h2>
-      <div id="myRequests" class="worklist">Sign in to view your requests.</div>
+      <h2>Opportunities I’m pursuing</h2>
+      <div id="myRequests" class="worklist">Sign in to view opportunities.</div>
+    </section>
+    <section class="workpanel conversations-panel">
+      <h2>My Conversations</h2>
+      <div class="workmessage">Each accepted connection has its own private message thread. Conversations are sorted by latest activity.</div>
+      <div id="myConversations" class="conversation-list">Sign in to view conversations.</div>
     </section>
   </div>
 </details>
@@ -158,7 +167,7 @@ function popupHtml(row,isLive){
  const canRequest=isLive && session && !isMine;
  const button=canRequest?'<button class="map-popup-button" type="button" data-request-id="'+esc(row.id)+'">Request to connect</button>':'';
  const editButton=isMine?'<button class="map-popup-button" type="button" data-edit-opportunity="'+esc(row.id)+'">Edit my opportunity</button>':'';
- return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isMine?' · ★ MY OPPORTUNITY':isLive?' · LIVE':' · Sample')+'</div><div class="map-popup-detail">'+detail+'</div>'+editButton+button;
+ return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isMine?' · ★ MY OPPORTUNITY':isLive?' · LIVE':' · Sample')+'</div>'+(row.created_at?'<div class="map-popup-meta">Created '+esc(formatDateTime(row.created_at))+'</div>':'')+'<div class="map-popup-detail">'+detail+'</div>'+editButton+button;
 }
 map.on('popupopen',event=>{
  const popupElement=event.popup.getElement();
@@ -294,6 +303,7 @@ $('searchForm').addEventListener('submit',async e=>{
  }catch(err){statusEl.textContent=err.message}finally{btn.disabled=false}
 });
 function message(id,text){$(id).textContent=text||''}
+function formatDateTime(value){if(!value)return 'Date unavailable';const d=new Date(value);return Number.isNaN(d.getTime())?'Date unavailable':d.toLocaleString([], {year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
 async function appendConversation(container,interestId){
  const box=document.createElement('section');box.className='conversation';
  const heading=document.createElement('h3');heading.textContent='Private conversation';box.appendChild(heading);
@@ -349,7 +359,7 @@ async function loadProfile(){
  profile=data;
 }
 async function loadWorkspace(){
- await Promise.all([loadMyReferrals(),loadIncoming(),loadMyRequests()]);
+ await Promise.all([loadMyReferrals(),loadIncoming(),loadMyRequests(),loadConversations()]);
 }
 async function loadMyReferrals(){
  const {data,error}=await db.from('referrals').select('id,referral_type,title,city,state,zip_code,description,status,created_at').eq('agent_id',session.user.id).order('created_at',{ascending:false});
@@ -358,7 +368,7 @@ async function loadMyReferrals(){
  (data||[]).forEach(row=>{
   const el=document.createElement('div');el.className='workitem';
   const heading=document.createElement('strong');heading.textContent=row.title||row.referral_type+' referral';el.appendChild(heading);
-  const meta=document.createElement('span');meta.textContent=[row.city,row.state,row.zip_code].filter(Boolean).join(', ')+' · '+row.status;el.appendChild(meta);
+  const meta=document.createElement('span');meta.textContent=[row.city,row.state,row.zip_code].filter(Boolean).join(', ')+' · '+row.status+' · Created '+formatDateTime(row.created_at);el.appendChild(meta);
   if(row.description){const p=document.createElement('p');p.textContent=row.description;el.appendChild(p)}
   const edit=document.createElement('button');edit.className='btn';edit.type='button';edit.textContent='Edit';edit.dataset.editOpportunityId=row.id;
   edit.addEventListener('click',()=>{
@@ -412,7 +422,7 @@ async function loadIncoming(){
   const ref=refs.find(x=>x.id===req.referral_id)||{};
   const {data:requester}=await db.from('profiles').select('full_name,brokerage').eq('id',req.agent_id).maybeSingle();
   const el=document.createElement('div');el.className='workitem';
-  el.innerHTML='<strong>'+esc(ref.title||ref.referral_type||'Referral')+'</strong><span>From: '+esc(requester?.full_name||'Agent')+(requester?.brokerage?' · '+esc(requester.brokerage):'')+' · '+esc(req.status)+'</span><p>'+esc(req.message||'No message included.')+'</p>';
+  el.innerHTML='<strong>'+esc(ref.title||ref.referral_type||'Referral')+'</strong><span>From: '+esc(requester?.full_name||'Agent')+(requester?.brokerage?' · '+esc(requester.brokerage):'')+' · '+esc(req.status)+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'No message included.')+'</p>';
   if(req.status==='pending'){
    for(const [label,value] of [['Accept','accepted'],['Decline','declined']]){
     const btn=document.createElement('button');btn.className='btn';btn.type='button';btn.textContent=label;
@@ -420,9 +430,47 @@ async function loadIncoming(){
    }
   }else if(req.status==='accepted'){
    const connected=document.createElement('p');connected.textContent='Connection accepted. You can message this agent privately below.';el.appendChild(connected);
-   await appendConversation(el,req.id);
   }
   $('incomingRequests').appendChild(el);
+ }
+}
+async function loadConversations(){
+ const target=$('myConversations');target.innerHTML='';
+ const {data:owned,error:ownedError}=await db.from('referrals').select('id,title,referral_type,agent_id,created_at').eq('agent_id',session.user.id);
+ if(ownedError){target.textContent='Could not load conversations: '+ownedError.message;return}
+ const ownedIds=(owned||[]).map(row=>row.id);
+ let incoming=[];
+ if(ownedIds.length){
+  const {data,error}=await db.from('referral_interests').select('id,referral_id,agent_id,created_at').eq('status','accepted').in('referral_id',ownedIds);
+  if(error){target.textContent='Could not load conversations: '+error.message;return}
+  incoming=data||[];
+ }
+ const {data:outgoing,error:outgoingError}=await db.from('referral_interests').select('id,referral_id,agent_id,created_at').eq('agent_id',session.user.id).eq('status','accepted');
+ if(outgoingError){target.textContent='Could not load conversations: '+outgoingError.message;return}
+ const ownedById=new Map((owned||[]).map(row=>[row.id,row]));
+ const threads=[...incoming,...(outgoing||[])],enriched=[];
+ for(const thread of threads){
+  let ref=ownedById.get(thread.referral_id);
+  if(!ref){const {data,error}=await db.from('referrals').select('id,title,referral_type,agent_id,created_at').eq('id',thread.referral_id).maybeSingle();if(error||!data)continue;ref=data}
+  const counterpartId=thread.agent_id===session.user.id?ref.agent_id:thread.agent_id;
+  const {data:person}=await db.from('profiles').select('full_name,brokerage').eq('id',counterpartId).maybeSingle();
+  const {data:lastMessages}=await db.from('referral_messages').select('body,created_at,sender_id').eq('interest_id',thread.id).order('created_at',{ascending:false}).limit(1);
+  const last=lastMessages?.[0];
+  enriched.push({thread,ref,person,last,activity:last?.created_at||thread.created_at});
+ }
+ enriched.sort((a,b)=>new Date(b.activity)-new Date(a.activity));
+ if(!enriched.length){target.textContent='No accepted connections yet. Accepted connections will appear here.';return}
+ for(const item of enriched){
+  const card=document.createElement('div');card.className='workitem';
+  const title=document.createElement('strong');title.textContent=item.ref.title||item.ref.referral_type+' opportunity';
+  const role=document.createElement('div');role.textContent=(item.thread.agent_id===session.user.id?'You requested this opportunity':'You posted this opportunity')+' · '+(item.person?.full_name||'Other agent')+(item.person?.brokerage?' · '+item.person.brokerage:'');
+  const dates=document.createElement('div');dates.className='chatmeta';dates.textContent='Opportunity created '+formatDateTime(item.ref.created_at)+' · Connection requested '+formatDateTime(item.thread.created_at)+' · Last activity '+formatDateTime(item.activity);
+  const preview=document.createElement('p');preview.textContent=item.last?(item.last.sender_id===session.user.id?'You: ':'Them: ')+item.last.body:'No messages yet.';
+  card.append(title,role,dates,preview);
+  const toggle=document.createElement('button');toggle.type='button';toggle.className='btn';toggle.textContent='Open conversation';
+  const slot=document.createElement('div');
+  toggle.addEventListener('click',async()=>{if(slot.dataset.loaded==='yes'){slot.hidden=!slot.hidden;toggle.textContent=slot.hidden?'Open conversation':'Close conversation';return}slot.dataset.loaded='yes';toggle.disabled=true;toggle.textContent='Loading…';await appendConversation(slot,item.thread.id);toggle.disabled=false;toggle.textContent='Close conversation'});
+  card.append(toggle,slot);target.appendChild(card);
  }
 }
 async function loadMyRequests(){
@@ -431,13 +479,12 @@ async function loadMyRequests(){
  $('myRequests').innerHTML='';
  if(!data.length){$('myRequests').textContent='You have not requested an introduction yet.';return}
  for(const req of data){
-  const {data:ref}=await db.from('referrals').select('title,city,state,zip_code,agent_id').eq('id',req.referral_id).maybeSingle();
+  const {data:ref}=await db.from('referrals').select('title,city,state,zip_code,agent_id,created_at').eq('id',req.referral_id).maybeSingle();
   const el=document.createElement('div');el.className='workitem';
-  el.innerHTML='<strong>'+esc(ref?.title||'Referral')+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+'</span><p>'+esc(req.message||'')+'</p>';
+  el.innerHTML='<strong>'+esc(ref?.title||'Referral')+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+' · Posted '+esc(formatDateTime(ref?.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'')+'</p>';
   if(req.status==='accepted' && ref?.agent_id){
    const heading=document.createElement('strong');heading.textContent='Your request was accepted — you are connected!';el.appendChild(heading);
    const note=document.createElement('p');note.textContent='You can message the posting agent privately below.';el.appendChild(note);
-   await appendConversation(el,req.id);
   }else if(req.status==='pending'){
    const wait=document.createElement('p');wait.textContent='Waiting for the posting agent to review your request.';el.appendChild(wait);
   }else if(req.status==='declined'){
