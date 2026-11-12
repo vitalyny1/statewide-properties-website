@@ -126,12 +126,7 @@ main{padding:12px 0 28px}
 const SUPABASE_URL='https://pcnvlshrrspckeeqmsws.supabase.co';
 const SUPABASE_KEY='sb_publishable_n_JjITp9BBsum5M2MQNXbw_-XTMNeZW';
 const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const samples=[
-{id:1,type:"Buyer",title:"Buyer looking in Queens",area:"Bayside, NY",zip:"11361",lat:40.7637,lng:-73.7743,detail:"Pre-approved buyer seeking a 2-bedroom home.",distance:null},
-{id:2,type:"Seller",title:"Potential home seller",area:"Jamaica Estates, NY",zip:"11432",lat:40.7178,lng:-73.7789,detail:"Owner considering listing in the next 30–60 days.",distance:null},
-{id:3,type:"Tenant",title:"Tenant seeking a rental",area:"Forest Hills, NY",zip:"11375",lat:40.7215,lng:-73.8448,detail:"Two-bedroom rental search; move-in next month.",distance:null},
-{id:4,type:"Buyer",title:"Buyer relocating to Nassau",area:"Garden City, NY",zip:"11530",lat:40.7268,lng:-73.6343,detail:"Family seeking a 3-bedroom home in Nassau County.",distance:null}
-];
+const samples=[];
 const map=L.map('map').setView([40.735,-73.82],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
 let markers=[],center=null,radiusCircle=null,liveRows=[],session=null,profile=null;
