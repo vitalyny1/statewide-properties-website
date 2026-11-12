@@ -59,8 +59,14 @@ main{padding:12px 0 28px}
 .workitem p{margin:4px 0;color:#555}
 .workitem button{margin:5px 5px 0 0}
 .workmessage{font-size:12px;color:#555;margin-top:7px;min-height:15px}
-.contactinfo{margin-top:9px;padding:9px;border:1px solid #b8c9df;background:#f5f8fc;font-size:12px}
-.contactinfo p{margin:4px 0}
+.conversation{margin-top:9px;padding:9px;border:1px solid #ccc;background:#fafafa}
+.conversation h3{margin:0 0 7px;font-size:13px;color:#0000EE}
+.chatlog{max-height:220px;overflow:auto;border:1px solid #ddd;background:#fff;padding:7px;margin-bottom:7px}
+.chatmsg{padding:5px 0;border-bottom:1px solid #eee;font-size:12px;overflow-wrap:anywhere}
+.chatmsg:last-child{border-bottom:0}
+.chatmeta{color:#777;font-size:10px;margin-bottom:2px}
+.chatform textarea{width:100%;min-height:58px;padding:7px;border:1px solid #aaa;font:inherit;resize:vertical}
+.chatform button{margin-top:5px}
 .paycard{margin-top:9px;padding:12px;border:1px solid #b8c9df;background:#f5f8fc;border-radius:4px}
 .paycard h3{margin:0 0 5px;font-size:15px;color:#173f70}
 .payprice{font-size:23px;font-weight:bold;color:#173f70;margin:5px 0}
@@ -197,17 +203,39 @@ $('searchForm').addEventListener('submit',async e=>{
  }catch(err){statusEl.textContent=err.message}finally{btn.disabled=false}
 });
 function message(id,text){$(id).textContent=text||''}
-async function appendAgentContact(container,userId){
- const {data:contact,error}=await db.from('agent_contacts').select('email,phone').eq('user_id',userId).maybeSingle();
- const box=document.createElement('div');box.className='contactinfo';
- const title=document.createElement('strong');title.textContent='Agent contact details';box.appendChild(title);
- if(error){const p=document.createElement('p');p.textContent='Contact details are not available yet.';box.appendChild(p)}
- else{
-  if(contact?.email){const p=document.createElement('p');p.textContent='Email: ';const a=document.createElement('a');a.href='mailto:'+contact.email;a.textContent=contact.email;p.appendChild(a);box.appendChild(p)}
-  if(contact?.phone){const p=document.createElement('p');p.textContent='Phone: ';const a=document.createElement('a');a.href='tel:'+contact.phone;a.textContent=contact.phone;p.appendChild(a);box.appendChild(p)}
-  if(!contact?.email&&!contact?.phone){const p=document.createElement('p');p.textContent='This agent has not added contact details yet.';box.appendChild(p)}
+async function appendConversation(container,interestId){
+ const box=document.createElement('section');box.className='conversation';
+ const heading=document.createElement('h3');heading.textContent='Private conversation';box.appendChild(heading);
+ const log=document.createElement('div');log.className='chatlog';log.setAttribute('aria-live','polite');box.appendChild(log);
+ const status=document.createElement('div');status.className='workmessage';box.appendChild(status);
+ const form=document.createElement('form');form.className='chatform';
+ const input=document.createElement('textarea');input.maxLength=4000;input.placeholder='Write a message to the other agent…';input.required=true;form.appendChild(input);
+ const send=document.createElement('button');send.className='btn';send.type='submit';send.textContent='Send message';form.appendChild(send);
+ box.appendChild(form);container.appendChild(box);
+ async function refreshMessages(){
+  const {data,error}=await db.from('referral_messages').select('id,sender_id,body,created_at').eq('interest_id',interestId).order('created_at',{ascending:true});
+  log.innerHTML='';
+  if(error){status.textContent='Could not load messages: '+error.message;return}
+  if(!data?.length){log.textContent='No messages yet. Start the conversation.';return}
+  data.forEach(msg=>{
+   const item=document.createElement('div');item.className='chatmsg';
+   const meta=document.createElement('div');meta.className='chatmeta';
+   meta.textContent=(msg.sender_id===session.user.id?'You':'Other agent')+' · '+new Date(msg.created_at).toLocaleString();
+   const body=document.createElement('div');body.textContent=msg.body;
+   item.append(meta,body);log.appendChild(item);
+  });
+  log.scrollTop=log.scrollHeight;
  }
- container.appendChild(box);
+ form.addEventListener('submit',async event=>{
+  event.preventDefault();const body=input.value.trim();if(!body)return;
+  send.disabled=true;status.textContent='Sending…';
+  const {error}=await db.from('referral_messages').insert({interest_id:interestId,sender_id:session.user.id,body});
+  send.disabled=false;
+  if(error){status.textContent='Could not send: '+error.message;return}
+  input.value='';status.textContent='Message sent.';await refreshMessages();
+ });
+ const refresh=document.createElement('button');refresh.type='button';refresh.className='btn';refresh.textContent='Refresh messages';refresh.addEventListener('click',refreshMessages);box.insertBefore(refresh,form);
+ await refreshMessages();
 }
 async function loadSession(){
  const {data}=await db.auth.getSession();session=data.session;
@@ -264,7 +292,8 @@ async function loadIncoming(){
     btn.addEventListener('click',async()=>{const {error}=await db.from('referral_interests').update({status:value}).eq('id',req.id);if(error)alert(error.message);else loadWorkspace()});el.appendChild(btn);
    }
   }else if(req.status==='accepted'){
-   await appendAgentContact(el,req.agent_id);
+   const connected=document.createElement('p');connected.textContent='Connection accepted. You can message this agent privately below.';el.appendChild(connected);
+   await appendConversation(el,req.id);
   }
   $('incomingRequests').appendChild(el);
  }
@@ -280,7 +309,8 @@ async function loadMyRequests(){
   el.innerHTML='<strong>'+esc(ref?.title||'Referral')+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+'</span><p>'+esc(req.message||'')+'</p>';
   if(req.status==='accepted' && ref?.agent_id){
    const heading=document.createElement('strong');heading.textContent='Your request was accepted — you are connected!';el.appendChild(heading);
-   await appendAgentContact(el,ref.agent_id);
+   const note=document.createElement('p');note.textContent='You can message the posting agent privately below.';el.appendChild(note);
+   await appendConversation(el,req.id);
   }else if(req.status==='pending'){
    const wait=document.createElement('p');wait.textContent='Waiting for the posting agent to review your request.';el.appendChild(wait);
   }else if(req.status==='declined'){
