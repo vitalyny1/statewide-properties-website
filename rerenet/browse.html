@@ -144,7 +144,8 @@ function popupHtml(row,isLive){
  const location=isLive?('ZIP '+esc(row.zip_code||'')):esc([row.city||row.area,row.state,row.zip_code||row.zip].filter(Boolean).join(', '));
  const type=esc(row.referral_type||row.type||'Opportunity');
  const detail=esc(row.description||row.detail||'Contact the posting agent for more information.');
- const button=isLive?'<button class="map-popup-button" type="button" data-request-id="'+esc(row.id)+'">Request to connect</button>':'';
+ const canRequest=isLive && session && row.agent_id!==session.user.id;
+ const button=canRequest?'<button class="map-popup-button" type="button" data-request-id="'+esc(row.id)+'">Request to connect</button>':'';
  return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isLive?' · LIVE':' · Sample')+'</div><div class="map-popup-detail">'+detail+'</div>'+button;
 }
 map.on('popupopen',event=>{
@@ -164,7 +165,6 @@ function render(){
  });
  liveRows.forEach(row=>{
   if(!['Buyer','Seller','Tenant'].includes(row.referral_type))return;
-  if(session && row.agent_id===session.user.id)return;
   if(cat!=='all' && String(row.referral_type).toLowerCase()!==cat.toLowerCase())return;
   const coords=zipCoordinateCache.get(String(row.zip_code||''));
   if(!coords)return;
@@ -353,6 +353,7 @@ $('postForm').addEventListener('submit',async e=>{
 });
 async function requestReferral(row){
  if(!session){location.href='auth.html';return}
+ if(row.agent_id===session.user.id){alert('You cannot request to connect with your own opportunity.');return}
  const text=prompt('Add a short message to the posting agent (optional):','');
  if(text===null)return;
  const {error}=await db.from('referral_interests').insert({referral_id:row.id,agent_id:session.user.id,message:text.trim()});
