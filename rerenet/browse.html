@@ -406,7 +406,7 @@ async function loadIncoming(){
  if(error){$('incomingRequests').textContent='Could not load incoming requests: '+error.message;return}
  if(!refs.length){$('incomingRequests').textContent='No requests yet.';return}
  const ids=refs.map(x=>x.id);
- const {data,error:requestError}=await db.from('referral_interests').select('id,referral_id,agent_id,message,status,created_at').in('referral_id',ids).order('created_at',{ascending:false});
+ const {data,error:requestError}=await db.from('referral_interests').select('id,referral_id,agent_id,message,status,created_at').in('referral_id',ids).eq('status','pending').order('created_at',{ascending:false});
  if(requestError){$('incomingRequests').textContent='Could not load requests: '+requestError.message;return}
  $('incomingRequests').innerHTML='';
  if(!data.length){$('incomingRequests').textContent='No requests yet.';return}
@@ -415,14 +415,7 @@ async function loadIncoming(){
   const {data:requester}=await db.from('profiles').select('full_name,brokerage').eq('id',req.agent_id).maybeSingle();
   const el=document.createElement('div');el.className='workitem';
   el.innerHTML='<strong>'+esc(ref.title||ref.referral_type||'Referral')+'</strong><span>From: '+esc(requester?.full_name||'Agent')+(requester?.brokerage?' · '+esc(requester.brokerage):'')+' · '+esc(req.status)+' · Opportunity posted '+esc(formatDateTime(ref.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'No message included.')+'</p>';
-  if(req.status==='pending'){
-   for(const [label,value] of [['Accept','accepted'],['Decline','declined']]){
-    const btn=document.createElement('button');btn.className='btn';btn.type='button';btn.textContent=label;
-    btn.addEventListener('click',async()=>{const {error}=await db.from('referral_interests').update({status:value}).eq('id',req.id);if(error)alert(error.message);else loadWorkspace()});el.appendChild(btn);
-   }
-  }else if(req.status==='accepted'){
-   const connected=document.createElement('p');connected.textContent='Connection accepted. You can message this agent privately below.';el.appendChild(connected);
-  }
+
   $('incomingRequests').appendChild(el);
  }
 }
