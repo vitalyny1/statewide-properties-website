@@ -478,7 +478,9 @@ async function loadMyRequests(){
    if(poster?.full_name)posterName=poster.full_name;
   }
   const el=document.createElement('div');el.className='workitem';
-  el.innerHTML='<strong>'+esc(ref?.title||'Referral')+' · Posted by '+esc(posterName)+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+' · Posted '+esc(formatDateTime(ref?.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'')+'</p>';
+  el.innerHTML='<strong><a href="#" class="opportunity-map-link" data-map-opportunity="'+esc(req.referral_id)+'">'+esc(ref?.title||'Referral')+'</a> · Posted by '+esc(posterName)+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+' · Posted '+esc(formatDateTime(ref?.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'')+'</p>';
+  const mapLink=el.querySelector('[data-map-opportunity]');
+  mapLink.addEventListener('click',event=>{event.preventDefault();focusOpportunityOnMap(req.referral_id)});
   if(req.status==='accepted' && ref?.agent_id){
    const heading=document.createElement('strong');heading.textContent='Your request was accepted — you are connected!';el.appendChild(heading);
    const note=document.createElement('p');note.textContent='Open the private message thread in My Conversations.';el.appendChild(note);
