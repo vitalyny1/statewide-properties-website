@@ -168,6 +168,7 @@ function render(){
   el.addEventListener('click',()=>{map.setView([o.lat,o.lng],13);marker.openPopup();highlight(o.id)});listEl.appendChild(el);
  });
  liveRows.forEach(row=>{
+  if(session && row.agent_id===session.user.id)return;
   if(cat!=='all' && String(row.referral_type).toLowerCase()!==cat.toLowerCase())return;
   const coords=zipCoordinateCache.get(String(row.zip_code||''));
   const miles=(center&&coords)?distanceMiles(center,coords):null;
@@ -184,7 +185,7 @@ function render(){
   if(coords)el.addEventListener('click',()=>{map.setView([coords.lat,coords.lng],13);const marker=markers.find(m=>m.getPopup()?.getContent().includes(esc(row.title||'Referral opportunity')));if(marker)marker.openPopup();highlight('live-'+row.id)});
   listEl.appendChild(el);
  });
- const visibleLive=liveRows.filter(row=>{if(cat!=='all'&&String(row.referral_type).toLowerCase()!==cat.toLowerCase())return false;const coords=zipCoordinateCache.get(String(row.zip_code||''));if(center&&coords&&distanceMiles(center,coords)>r)return false;return true;});
+ const visibleLive=liveRows.filter(row=>{if(session && row.agent_id===session.user.id)return false;if(cat!=='all'&&String(row.referral_type).toLowerCase()!==cat.toLowerCase())return false;const coords=zipCoordinateCache.get(String(row.zip_code||''));if(center&&coords&&distanceMiles(center,coords)>r)return false;return true;});
  const total=filtered.length+visibleLive.length;
  countEl.textContent=total+' opportunities ('+filtered.length+' examples'+(visibleLive.length?', '+visibleLive.length+' live':'')+')';
  if(!total)listEl.innerHTML='<div class="empty">No opportunities match. Try a larger radius or another category.</div>';
