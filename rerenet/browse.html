@@ -386,7 +386,10 @@ async function loadMyReferrals(){
  (data||[]).forEach(row=>{
   const el=document.createElement('div');el.className='workitem';
   const titleRow=document.createElement('div');titleRow.className='opp-title-row';
-  const heading=document.createElement('strong');heading.textContent=row.title||row.referral_type+' referral';titleRow.appendChild(heading);
+  const heading=document.createElement('strong');
+  const titleLink=document.createElement('a');titleLink.href='#';titleLink.className='opportunity-map-link';titleLink.textContent=row.title||row.referral_type+' referral';
+  titleLink.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();focusOpportunityOnMap(row.id)});
+  heading.appendChild(titleLink);titleRow.appendChild(heading);
   const created=document.createElement('span');created.className='opp-created';created.textContent='Created '+formatDateTime(row.created_at);titleRow.appendChild(created);
   const status=document.createElement('span');status.className='opp-status '+String(row.status||'').toLowerCase();status.textContent=row.status||'unknown';titleRow.appendChild(status);
   el.appendChild(titleRow);
@@ -397,7 +400,7 @@ async function loadMyReferrals(){
   el.addEventListener('click',()=>focusOpportunityOnMap(row.id));
   const statusButton=document.createElement('button');statusButton.className='btn';statusButton.type='button';statusButton.textContent=row.status==='active'?'Pause':'Reactivate';
   statusButton.style.marginLeft='6px';
-  statusButton.addEventListener('click',async()=>{const next=row.status==='active'?'paused':'active';const {error}=await db.from('referrals').update({status:next}).eq('id',row.id);if(error)alert(error.message);else loadWorkspace()});
+  statusButton.addEventListener('click',async event=>{event.stopPropagation();const next=row.status==='active'?'paused':'active';const {error}=await db.from('referrals').update({status:next}).eq('id',row.id);if(error)alert(error.message);else loadWorkspace()});
   el.append(statusButton);$('myReferrals').appendChild(el);
  });
 }
