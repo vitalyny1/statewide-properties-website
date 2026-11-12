@@ -398,7 +398,7 @@ async function loadMyReferrals(){
   const statusButton=document.createElement('button');statusButton.className='btn';statusButton.type='button';statusButton.textContent=row.status==='active'?'Pause':'Reactivate';
   statusButton.style.marginLeft='6px';
   statusButton.addEventListener('click',async()=>{const next=row.status==='active'?'paused':'active';const {error}=await db.from('referrals').update({status:next}).eq('id',row.id);if(error)alert(error.message);else loadWorkspace()});
-  el.append(edit,statusButton);$('myReferrals').appendChild(el);
+  el.append(statusButton);$('myReferrals').appendChild(el);
  });
 }
 async function loadIncoming(){
@@ -460,15 +460,23 @@ async function loadConversations(){
  }
 }
 async function loadMyRequests(){
+ const target=$('myRequests');
+ const renderId=(Number(target.dataset.renderId)||0)+1;
+ target.dataset.renderId=String(renderId);
+ target.innerHTML='';
  const {data,error}=await db.from('referral_interests').select('id,message,status,created_at,referral_id').eq('agent_id',session.user.id).order('created_at',{ascending:false});
- if(error){$('myRequests').textContent='Could not load your requests: '+error.message;return}
- $('myRequests').innerHTML='';
- if(!data.length){$('myRequests').textContent='You have not requested an introduction yet.';return}
- for(const req of data){
+ if(target.dataset.renderId!==String(renderId))return;
+ if(error){target.textContent='Could not load your requests: '+error.message;return}
+ // One card per opportunity requested by this agent; keep the newest request row.
+ const uniqueRequests=[...new Map((data||[]).map(req=>[req.referral_id,req])).values()];
+ if(!uniqueRequests.length){target.textContent='You have not requested an introduction yet.';return}
+ for(const req of uniqueRequests){
   const {data:ref}=await db.from('referrals').select('title,city,state,zip_code,agent_id,created_at').eq('id',req.referral_id).maybeSingle();
+  if(target.dataset.renderId!==String(renderId))return;
   let posterName='Another agent';
   if(ref?.agent_id){
    const {data:poster}=await db.from('profiles').select('full_name').eq('id',ref.agent_id).maybeSingle();
+   if(target.dataset.renderId!==String(renderId))return;
    if(poster?.full_name)posterName=poster.full_name;
   }
   const el=document.createElement('div');el.className='workitem';
@@ -483,7 +491,8 @@ async function loadMyRequests(){
   }else if(req.status==='declined'){
    const wait=document.createElement('p');wait.textContent='This request was declined.';el.appendChild(wait);
   }
-  $('myRequests').appendChild(el);
+  if(target.dataset.renderId!==String(renderId))return;
+  target.appendChild(el);
  }
 }
 $('postForm').addEventListener('submit',async e=>{
