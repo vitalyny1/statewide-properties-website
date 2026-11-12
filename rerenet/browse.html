@@ -381,12 +381,16 @@ async function loadMyReferrals(){
    form.addEventListener('submit',async event=>{
     event.preventDefault();
     const payload={referral_type:type.value,title:title.value.trim(),city:city.value.trim(),state:state.value.trim().toUpperCase(),zip_code:zip.value.trim(),description:description.value.trim()};
-    if(!/^\\d{5}$/.test(payload.zip_code)){feedback.textContent='Enter a 5-digit ZIP code.';return}
+    if(!/^\d{5}$/.test(payload.zip_code)){feedback.textContent='Enter a valid 5-digit ZIP code.';return}
     save.disabled=true;feedback.textContent='Saving…';
-    const {error}=await db.from('referrals').update(payload).eq('id',row.id).eq('agent_id',session.user.id);
-    if(error){save.disabled=false;feedback.textContent='Could not save: '+error.message;return}
-    await loadWorkspace();await loadLiveRows();
-   });
+    try{
+     const {data,error}=await db.from('referrals').update(payload).eq('id',row.id).eq('agent_id',session.user.id).select('id').maybeSingle();
+     if(error){save.disabled=false;feedback.textContent='Could not save: '+error.message;return}
+     if(!data){save.disabled=false;feedback.textContent='No changes were saved. The opportunity was not found or you do not have permission to edit it.';return}
+     feedback.textContent='Changes saved.';
+     await loadWorkspace();await loadLiveRows();
+    }catch(err){save.disabled=false;feedback.textContent='Could not save: '+(err.message||String(err));}
+   });;
    el.appendChild(form);
   });
   const statusButton=document.createElement('button');statusButton.className='btn';statusButton.type='button';statusButton.textContent=row.status==='active'?'Pause':'Reactivate';
