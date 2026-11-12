@@ -157,6 +157,11 @@ map.on('popupopen',event=>{
  if(popupFrame){
   popupFrame.style.border='2px solid #777';
   popupFrame.style.cursor='default';
+  // Leaflet pans on mousedown/touchstart, so stop those events at the popup border
+  // before they reach the map container. This leaves controls and scrolling intact.
+  ['mousedown','touchstart'].forEach(type=>popupFrame.addEventListener(type,e=>{
+   if(e.target===popupFrame)e.stopPropagation();
+  },true));
   popupFrame.addEventListener('pointerdown',e=>{
    // Drag only from the popup frame/border, not from fields, buttons, or text.
    if(e.button!==0 || e.target!==popupFrame)return;
