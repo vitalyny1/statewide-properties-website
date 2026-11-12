@@ -347,14 +347,27 @@ async function geocodeLiveZip(zip){
  const key=String(zip||'').trim();
  if(!/^\d{5}$/.test(key))return null;
  if(zipCoordinateCache.has(key))return zipCoordinateCache.get(key);
+ let point=null;
+ // The ZIP code is the authoritative location. Do not use city/state text to place a listing.
  try{
-  const response=await fetch('https://nominatim.openstreetmap.org/search?postalcode='+encodeURIComponent(key)+'&country=United%20States&format=jsonv2&limit=1');
-  if(!response.ok)throw new Error('ZIP lookup failed');
-  const rows=await response.json();
-  const point=rows.length?{lat:Number(rows[0].lat),lng:Number(rows[0].lon)}:null;
-  zipCoordinateCache.set(key,point);
-  return point;
- }catch(error){console.info('Could not locate ZIP '+key,error);return null}
+  const response=await fetch('https://api.zippopotam.us/us/'+encodeURIComponent(key));
+  if(response.ok){
+   const data=await response.json();
+   const place=data.places&&data.places[0];
+   if(place)point={lat:Number(place.latitude),lng:Number(place.longitude)};
+  }
+ }catch(error){console.info('ZIP centroid lookup unavailable for '+key,error)}
+ if(!point){
+  try{
+   const response=await fetch('https://nominatim.openstreetmap.org/search?postalcode='+encodeURIComponent(key)+'&country=United%20States&format=jsonv2&limit=1');
+   if(response.ok){
+    const rows=await response.json();
+    if(rows.length)point={lat:Number(rows[0].lat),lng:Number(rows[0].lon)};
+   }
+  }catch(error){console.info('Fallback ZIP lookup unavailable for '+key,error)}
+ }
+ zipCoordinateCache.set(key,point);
+ return point;
 }
 async function loadLiveRows(){
  const {data,error}=await db.from('referrals').select('id,agent_id,referral_type,title,city,state,zip_code,description,created_at,status').eq('status','active').order('created_at',{ascending:false});
