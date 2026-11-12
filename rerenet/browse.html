@@ -268,6 +268,16 @@ map.on('popupopen',event=>{
   });
  }
 });
+function focusOpportunityOnMap(rowId){
+ const row=liveRows.find(item=>String(item.id)===String(rowId));
+ if(!row)return;
+ const coords=zipCoordinateCache.get(String(row.zip_code||''));
+ if(!coords){statusEl.textContent='This opportunity ZIP code has not been located on the map yet.';return}
+ const marker=markers.find(item=>String(item.opportunityId)===String(rowId));
+ map.setView([coords.lat,coords.lng],13);
+ if(marker){setTimeout(()=>marker.openPopup(),180)}
+ $('map').scrollIntoView({behavior:'smooth',block:'center'});
+}
 function render(){
  markers.forEach(m=>map.removeLayer(m));markers=[];
  const cat=$('category').value,r=Number($('radius').value);
@@ -378,39 +388,9 @@ async function loadMyReferrals(){
   el.appendChild(titleRow);
   const meta=document.createElement('span');meta.textContent=[row.city,row.state,row.zip_code].filter(Boolean).join(', ');el.appendChild(meta);
   if(row.description){const p=document.createElement('p');p.textContent=row.description;el.appendChild(p)}
-  const edit=document.createElement('button');edit.className='btn';edit.type='button';edit.textContent='Edit';edit.dataset.editOpportunityId=row.id;
-  edit.addEventListener('click',()=>{
-   if(el.querySelector('.edit-opportunity-form'))return;
-   const form=document.createElement('form');form.className='edit-opportunity-form';form.style.cssText='margin-top:9px;padding:9px;border:1px solid #ccc;background:#fafafa';
-   const addField=(labelText,control)=>{
-    const label=document.createElement('label');label.style.cssText='display:flex;flex-direction:column;gap:3px;margin:7px 0;font-size:12px;font-weight:bold';label.textContent=labelText;label.appendChild(control);form.appendChild(label);return control;
-   };
-   const type=document.createElement('select');
-   ['Buyer','Seller','Tenant'].forEach(value=>{const option=document.createElement('option');option.value=value;option.textContent=value;type.appendChild(option)});
-   type.value=row.referral_type;addField('Opportunity type',type);
-   const title=document.createElement('input');title.maxLength=120;title.required=true;title.value=row.title||'';addField('Title',title);
-   const city=document.createElement('input');city.maxLength=100;city.required=true;city.value=row.city||'';addField('City',city);
-   const state=document.createElement('input');state.maxLength=2;state.required=true;state.value=row.state||'';addField('State',state);
-   const zip=document.createElement('input');zip.maxLength=10;zip.required=true;zip.value=row.zip_code||'';addField('ZIP code',zip);
-   const description=document.createElement('textarea');description.maxLength=2000;description.rows=3;description.value=row.description||'';addField('Details',description);
-   const save=document.createElement('button');save.className='btn';save.type='submit';save.textContent='Save changes';form.appendChild(save);
-   const cancel=document.createElement('button');cancel.className='btn';cancel.type='button';cancel.textContent='Cancel';cancel.style.marginLeft='6px';cancel.addEventListener('click',()=>form.remove());form.appendChild(cancel);
-   const feedback=document.createElement('div');feedback.className='workmessage';form.appendChild(feedback);
-   form.addEventListener('submit',async event=>{
-    event.preventDefault();
-    const payload={referral_type:type.value,title:title.value.trim(),city:city.value.trim(),state:state.value.trim().toUpperCase(),zip_code:zip.value.trim(),description:description.value.trim(),updated_at:new Date().toISOString()};
-    if(!/^\d{5}$/.test(payload.zip_code)){feedback.textContent='Enter a valid 5-digit ZIP code.';return}
-    save.disabled=true;feedback.textContent='Saving…';
-    try{
-     const {data,error}=await db.from('referrals').update(payload).eq('id',row.id).eq('agent_id',session.user.id).select('id').maybeSingle();
-     if(error){save.disabled=false;feedback.textContent='Could not save: '+error.message;return}
-     if(!data){save.disabled=false;feedback.textContent='No changes were saved. The opportunity was not found or you do not have permission to edit it.';return}
-     feedback.textContent='Changes saved.';
-     await loadWorkspace();await loadLiveRows();
-    }catch(err){save.disabled=false;feedback.textContent='Could not save: '+(err.message||String(err));}
-   });;
-   el.appendChild(form);
-  });
+  el.style.cursor='pointer';
+  el.title='Click to find this opportunity on the map and edit it';
+  el.addEventListener('click',()=>focusOpportunityOnMap(row.id));
   const statusButton=document.createElement('button');statusButton.className='btn';statusButton.type='button';statusButton.textContent=row.status==='active'?'Pause':'Reactivate';
   statusButton.style.marginLeft='6px';
   statusButton.addEventListener('click',async()=>{const next=row.status==='active'?'paused':'active';const {error}=await db.from('referrals').update({status:next}).eq('id',row.id);if(error)alert(error.message);else loadWorkspace()});
@@ -553,7 +533,7 @@ async function geocodeLiveZip(zip){
  return point;
 }
 async function loadLiveRows(){
- const {data,error}=await db.from('referrals').select('id,agent_id,referral_type,title,city,state,zip_code,description,created_at,updated_at,status').eq('status','active').order('created_at',{ascending:false});
+ const {data,error}=await db.from('referrals').select('id,agent_id,referral_type,title,city,state,zip_code,description,created_at,updated_at,status').order('created_at',{ascending:false});
  if(!error&&data){
   liveRows=data;
   const uniqueZips=[...new Set(data.map(row=>String(row.zip_code||'').trim()).filter(zip=>/^\d{5}$/.test(zip)))];
