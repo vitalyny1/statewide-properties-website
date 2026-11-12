@@ -87,7 +87,7 @@ main{padding:12px 0 28px}
   <div class="workgrid">
     <form id="postForm" class="workpanel">
       <h2>Post an opportunity</h2>
-      <label>Referral type<select id="postType"><option>Buyer</option><option>Seller</option><option>Tenant</option><option>Partnership</option><option>Showing Assistance</option><option>Business Services</option><option>Other</option></select></label>
+      <label>Referral type<select id="postType"><option>Buyer</option><option>Seller</option><option>Tenant</option></select></label>
       <label>Short title<input id="postTitle" maxlength="120" placeholder="e.g. Buyer seeking a home in Queens" required></label>
       <label>City<input id="postCity" maxlength="100" placeholder="City" required></label>
       <label>State<input id="postState" maxlength="2" placeholder="NY" required></label>
@@ -114,7 +114,7 @@ main{padding:12px 0 28px}
 <form class="search" id="searchForm">
 <div class="field zip"><label for="zip">Your ZIP code</label><input id="zip" inputmode="numeric" maxlength="5" placeholder="Enter ZIP code (e.g. 11427)" required></div>
 <div class="field radius"><label for="radius">Search radius</label><select id="radius"><option value="10">10 miles</option><option value="25" selected>25 miles</option><option value="50">50 miles</option><option value="100">100 miles</option></select></div>
-<div class="field category"><label for="category">Opportunity type</label><select id="category"><option value="all">All opportunities</option><option value="Buyer">Buyer referrals</option><option value="Seller">Seller referrals</option><option value="Tenant">Tenant referrals</option><option value="Partnership">Agent partnerships</option><option value="Showing Assistance">Showing assistance</option><option value="Business Services">Business services</option><option value="Other">Other opportunities</option></select></div>
+<div class="field category"><label for="category">Opportunity type</label><select id="category"><option value="all">All opportunities</option><option value="Buyer">Buyer referrals</option><option value="Seller">Seller referrals</option><option value="Tenant">Tenant referrals</option></select></div>
 <button class="btn" id="searchBtn" type="submit">Search map</button>
 <div class="status" id="status" role="status">Showing demonstration opportunities around Queens and Nassau County.</div>
 </form>
@@ -136,7 +136,7 @@ const map=L.map('map').setView([40.735,-73.82],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
 let markers=[],center=null,radiusCircle=null,liveRows=[],session=null,profile=null;
 const zipCoordinateCache=new Map();
-const typeColors={Buyer:'#2563eb',Seller:'#dc2626',Tenant:'#16a34a',Partnership:'#9333ea','Showing Assistance':'#d97706','Business Services':'#0891b2',Other:'#0891b2'};
+const typeColors={Buyer:'#2563eb',Seller:'#dc2626',Tenant:'#16a34a'};
 function markerColor(type){return typeColors[type]||'#0891b2'}
 function makeOpportunityMarker(lat,lng,type,popup){return L.circleMarker([lat,lng],{radius:9,color:'#fff',weight:2,fillColor:markerColor(type),fillOpacity:.95}).addTo(map).bindPopup(popup)}
 const statusEl=document.getElementById('status');
@@ -168,6 +168,7 @@ function render(){
   markers.push(marker);
  });
  liveRows.forEach(row=>{
+  if(!['Buyer','Seller','Tenant'].includes(row.referral_type))return;
   if(session && row.agent_id===session.user.id)return;
   if(cat!=='all' && String(row.referral_type).toLowerCase()!==cat.toLowerCase())return;
   const coords=zipCoordinateCache.get(String(row.zip_code||''));
