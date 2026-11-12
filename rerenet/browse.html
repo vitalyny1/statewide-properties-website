@@ -152,7 +152,22 @@ function popupHtml(row,isLive){
 }
 map.on('popupopen',event=>{
  const editButton=event.popup.getElement()?.querySelector('[data-edit-opportunity]');
- if(editButton)editButton.addEventListener('click',()=>{const target=[...document.querySelectorAll('[data-edit-opportunity-id]')].find(el=>el.dataset.editOpportunityId===editButton.dataset.editOpportunity);if(target){target.click();$('workspace').scrollIntoView({behavior:'smooth',block:'start'});}});
+ if(editButton)editButton.addEventListener('click',()=>{
+  const row=liveRows.find(item=>String(item.id)===editButton.dataset.editOpportunity);
+  if(!row || !session || row.agent_id!==session.user.id)return;
+  const content=event.popup.getElement().querySelector('.leaflet-popup-content');
+  if(content.querySelector('.map-inline-edit'))return;
+  const form=document.createElement('form');form.className='map-inline-edit';form.style.cssText='display:grid;gap:7px;margin-top:10px;min-width:220px';
+  const field=(labelText,value,tag='input')=>{const wrap=document.createElement('label');wrap.textContent=labelText;wrap.style.cssText='display:grid;gap:3px;font-size:12px;font-weight:600';const input=document.createElement(tag);input.value=value||'';input.style.cssText='width:100%;box-sizing:border-box;padding:7px;border:1px solid #bbb;border-radius:5px;font:inherit';if(tag==='textarea'){input.rows=3;input.maxLength=2000}else input.maxLength=tag==='select'?20:120;wrap.appendChild(input);form.appendChild(wrap);return input};
+  const type=field('Opportunity type',row.referral_type,'select');['Buyer','Seller','Tenant'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;type.appendChild(o)});type.value=row.referral_type;
+  const title=field('Title',row.title),city=field('City',row.city),state=field('State',row.state),zip=field('ZIP code',row.zip_code),description=field('Details',row.description,'textarea');
+  zip.maxLength=5;zip.inputMode='numeric';zip.pattern='[0-9]{5}';
+  const save=document.createElement('button');save.type='submit';save.textContent='Save changes';save.className='map-popup-button';form.appendChild(save);
+  const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.className='map-popup-button';cancel.addEventListener('click',()=>form.remove());form.appendChild(cancel);
+  const feedback=document.createElement('div');feedback.style.cssText='font-size:12px';form.appendChild(feedback);
+  form.addEventListener('submit',async e=>{e.preventDefault();const payload={referral_type:type.value,title:title.value.trim(),city:city.value.trim(),state:state.value.trim().toUpperCase(),zip_code:zip.value.trim(),description:description.value.trim()};if(!/^\\d{5}$/.test(payload.zip_code)){feedback.textContent='Enter a valid 5-digit ZIP code.';return}save.disabled=true;feedback.textContent='Saving…';const {error}=await db.from('referrals').update(payload).eq('id',row.id).eq('agent_id',session.user.id);if(error){save.disabled=false;feedback.textContent='Could not save: '+error.message;return}event.popup.remove();await loadWorkspace();await loadLiveRows();});
+  content.appendChild(form);
+ });
  const button=event.popup.getElement()?.querySelector('[data-request-id]');
  if(button){
   const row=liveRows.find(item=>String(item.id)===button.dataset.requestId);
@@ -376,7 +391,8 @@ async function geocodeLiveZip(zip){
   if(response.ok){
    const data=await response.json();
    const place=data.places&&data.places[0];
-   if(place)point={lat:Number(place.latitude),lng:Number(place.longitude)};
+   const lat=Number(place?.latitude),lng=Number(place?.longitude);
+   if(data['post code']===key && place && Number.isFinite(lat)&&Number.isFinite(lng)&&lat>=24&&lat<=50&&lng>=-126&&lng<=-66)point={lat,lng};
   }
  }catch(error){console.info('ZIP centroid lookup unavailable for '+key,error)}
  if(!point){
@@ -384,7 +400,8 @@ async function geocodeLiveZip(zip){
    const response=await fetch('https://nominatim.openstreetmap.org/search?postalcode='+encodeURIComponent(key)+'&country=United%20States&format=jsonv2&limit=1');
    if(response.ok){
     const rows=await response.json();
-    if(rows.length)point={lat:Number(rows[0].lat),lng:Number(rows[0].lon)};
+    const result=rows.find(item=>String(item.address?.postcode||'').replace(/\\D/g,'').startsWith(key));
+    if(result){const lat=Number(result.lat),lng=Number(result.lon);if(Number.isFinite(lat)&&Number.isFinite(lng)&&lat>=24&&lat<=50&&lng>=-126&&lng<=-66)point={lat,lng}}
    }
   }catch(error){console.info('Postal-code ZIP lookup unavailable for '+key,error)}
  }
@@ -393,8 +410,10 @@ async function geocodeLiveZip(zip){
   try{
    const response=await fetch('https://nominatim.openstreetmap.org/search?q='+encodeURIComponent(key+' USA')+'&format=jsonv2&limit=1');
    if(response.ok){
+    // Do not use a broad text search: it can place a ZIP marker in the wrong state.
     const rows=await response.json();
-    if(rows.length)point={lat:Number(rows[0].lat),lng:Number(rows[0].lon)};
+    const result=rows.find(item=>String(item.address?.postcode||'').replace(/\\D/g,'').startsWith(key));
+    if(result){const lat=Number(result.lat),lng=Number(result.lon);if(Number.isFinite(lat)&&Number.isFinite(lng)&&lat>=24&&lat<=50&&lng>=-126&&lng<=-66)point={lat,lng}}
    }
   }catch(error){console.info('ZIP-only fallback lookup unavailable for '+key,error)}
  }
