@@ -273,6 +273,10 @@ function focusOpportunityOnMap(rowId){
  if(!row)return;
  const coords=zipCoordinateCache.get(String(row.zip_code||''));
  if(!coords){statusEl.textContent='This opportunity ZIP code has not been located on the map yet.';return}
+ $('category').value=row.referral_type;
+ center=null;
+ if(radiusCircle){map.removeLayer(radiusCircle);radiusCircle=null}
+ render();
  const marker=markers.find(item=>String(item.opportunityId)===String(rowId));
  map.setView([coords.lat,coords.lng],13);
  if(marker){setTimeout(()=>marker.openPopup(),180)}
@@ -288,14 +292,16 @@ function render(){
  });
  liveRows.forEach(row=>{
   if(!['Buyer','Seller','Tenant'].includes(row.referral_type))return;
+  const isMine=!!(session && row.agent_id===session.user.id);
+  if(row.status!=='active'&&!isMine)return;
   if(cat!=='all' && String(row.referral_type).toLowerCase()!==cat.toLowerCase())return;
   const coords=zipCoordinateCache.get(String(row.zip_code||''));
   if(!coords)return;
   const miles=center?distanceMiles(center,coords):null;
   if(center && miles>r)return;
-  const isMine=!!(session && row.agent_id===session.user.id);
   const marker=makeOpportunityMarker(coords.lat,coords.lng,row.referral_type,popupHtml(row,true),isMine);
   marker.bindTooltip('<b>'+esc(row.title||'Referral opportunity')+'</b><br>'+esc(row.referral_type)+' · ZIP '+esc(row.zip_code)+(isMine?' · ★ MY OPPORTUNITY':''),{sticky:true,direction:'top'});
+  marker.opportunityId=row.id;
   markers.push(marker);
  });
 }
