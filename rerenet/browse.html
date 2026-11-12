@@ -133,7 +133,7 @@ let markers=[],center=null,radiusCircle=null,liveRows=[],session=null,profile=nu
 const zipCoordinateCache=new Map();
 const typeColors={Buyer:'#2563eb',Seller:'#dc2626',Tenant:'#16a34a'};
 function markerColor(type){return typeColors[type]||'#0891b2'}
-function makeOpportunityMarker(lat,lng,type,popup){return L.circleMarker([lat,lng],{radius:9,color:'#fff',weight:2,fillColor:markerColor(type),fillOpacity:.95}).addTo(map).bindPopup(popup)}
+function makeOpportunityMarker(lat,lng,type,popup,isMine=false){return L.circleMarker([lat,lng],{radius:isMine?12:9,color:isMine?'#f59e0b':'#fff',weight:isMine?4:2,fillColor:markerColor(type),fillOpacity:1}).addTo(map).bindPopup(popup)}
 const statusEl=document.getElementById('status');
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -144,11 +144,15 @@ function popupHtml(row,isLive){
  const location=isLive?('ZIP '+esc(row.zip_code||'')):esc([row.city||row.area,row.state,row.zip_code||row.zip].filter(Boolean).join(', '));
  const type=esc(row.referral_type||row.type||'Opportunity');
  const detail=esc(row.description||row.detail||'Contact the posting agent for more information.');
- const canRequest=isLive && session && row.agent_id!==session.user.id;
+ const isMine=isLive && session && row.agent_id===session.user.id;
+ const canRequest=isLive && session && !isMine;
  const button=canRequest?'<button class="map-popup-button" type="button" data-request-id="'+esc(row.id)+'">Request to connect</button>':'';
- return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isLive?' · LIVE':' · Sample')+'</div><div class="map-popup-detail">'+detail+'</div>'+button;
+ const editButton=isMine?'<button class="map-popup-button" type="button" data-edit-opportunity="'+esc(row.id)+'">Edit my opportunity</button>':'';
+ return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isMine?' · ★ MY OPPORTUNITY':isLive?' · LIVE':' · Sample')+'</div><div class="map-popup-detail">'+detail+'</div>'+editButton+button;
 }
 map.on('popupopen',event=>{
+ const editButton=event.popup.getElement()?.querySelector('[data-edit-opportunity]');
+ if(editButton)editButton.addEventListener('click',()=>{const target=[...document.querySelectorAll('[data-edit-opportunity-id]')].find(el=>el.dataset.editOpportunityId===editButton.dataset.editOpportunity);if(target){target.click();$('workspace').scrollIntoView({behavior:'smooth',block:'start'});}});
  const button=event.popup.getElement()?.querySelector('[data-request-id]');
  if(button){
   const row=liveRows.find(item=>String(item.id)===button.dataset.requestId);
@@ -170,8 +174,9 @@ function render(){
   if(!coords)return;
   const miles=center?distanceMiles(center,coords):null;
   if(center && miles>r)return;
-  const marker=makeOpportunityMarker(coords.lat,coords.lng,row.referral_type,popupHtml(row,true));
-  marker.bindTooltip('<b>'+esc(row.title||'Referral opportunity')+'</b><br>'+esc(row.referral_type)+' · ZIP '+esc(row.zip_code),{sticky:true,direction:'top'});
+  const isMine=!!(session && row.agent_id===session.user.id);
+  const marker=makeOpportunityMarker(coords.lat,coords.lng,row.referral_type,popupHtml(row,true),isMine);
+  marker.bindTooltip('<b>'+esc(row.title||'Referral opportunity')+'</b><br>'+esc(row.referral_type)+' · ZIP '+esc(row.zip_code)+(isMine?' · ★ MY OPPORTUNITY':''),{sticky:true,direction:'top'});
   markers.push(marker);
  });
 }
@@ -259,7 +264,7 @@ async function loadMyReferrals(){
   const heading=document.createElement('strong');heading.textContent=row.title||row.referral_type+' referral';el.appendChild(heading);
   const meta=document.createElement('span');meta.textContent=[row.city,row.state,row.zip_code].filter(Boolean).join(', ')+' · '+row.status;el.appendChild(meta);
   if(row.description){const p=document.createElement('p');p.textContent=row.description;el.appendChild(p)}
-  const edit=document.createElement('button');edit.className='btn';edit.type='button';edit.textContent='Edit';
+  const edit=document.createElement('button');edit.className='btn';edit.type='button';edit.textContent='Edit';edit.dataset.editOpportunityId=row.id;
   edit.addEventListener('click',()=>{
    if(el.querySelector('.edit-opportunity-form'))return;
    const form=document.createElement('form');form.className='edit-opportunity-form';form.style.cssText='margin-top:9px;padding:9px;border:1px solid #ccc;background:#fafafa';
