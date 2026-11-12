@@ -140,7 +140,6 @@ main{padding:12px 0 28px}
         <summary>2. My Posted Opportunities</summary>
         <div class="fold-content">
           <div id="myReferrals" class="worklist">Sign in to view your opportunities.</div>
-          <div id="incomingRequests" class="worklist">Sign in to view requests.</div>
         </div>
       </details>
     </section>
@@ -394,7 +393,7 @@ async function loadProfile(){
  profile=data;
 }
 async function loadWorkspace(){
- await Promise.all([loadMyReferrals(),loadIncoming(),loadMyRequests(),loadConversations()]);
+ await Promise.all([loadMyReferrals(),loadMyRequests(),loadConversations()]);
 }
 async function loadMyReferrals(){
  const {data,error}=await db.from('referrals').select('id,referral_type,title,city,state,zip_code,description,status,created_at,updated_at').eq('agent_id',session.user.id).order('created_at',{ascending:false});
