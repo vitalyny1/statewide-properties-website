@@ -472,8 +472,13 @@ async function loadMyRequests(){
  if(!data.length){$('myRequests').textContent='You have not requested an introduction yet.';return}
  for(const req of data){
   const {data:ref}=await db.from('referrals').select('title,city,state,zip_code,agent_id,created_at').eq('id',req.referral_id).maybeSingle();
+  let posterName='Another agent';
+  if(ref?.agent_id){
+   const {data:poster}=await db.from('profiles').select('full_name').eq('id',ref.agent_id).maybeSingle();
+   if(poster?.full_name)posterName=poster.full_name;
+  }
   const el=document.createElement('div');el.className='workitem';
-  el.innerHTML='<strong>'+esc(ref?.title||'Referral')+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+' · Posted '+esc(formatDateTime(ref?.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'')+'</p>';
+  el.innerHTML='<strong>'+esc(ref?.title||'Referral')+' · Posted by '+esc(posterName)+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+' · Posted '+esc(formatDateTime(ref?.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'')+'</p>';
   if(req.status==='accepted' && ref?.agent_id){
    const heading=document.createElement('strong');heading.textContent='Your request was accepted — you are connected!';el.appendChild(heading);
    const note=document.createElement('p');note.textContent='Open the private message thread in My Conversations.';el.appendChild(note);
