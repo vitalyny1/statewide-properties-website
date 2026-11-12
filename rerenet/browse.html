@@ -27,22 +27,15 @@ main{padding:12px 0 28px}
 .btn{height:34px;padding:0 13px;border:1px solid #999;border-radius:3px;background:#ddd;color:#0000EE;text-decoration:underline;font-weight:normal;cursor:pointer}
 .btn:disabled{opacity:.6;cursor:wait}
 .status{font-size:12px;color:#666;align-self:center;flex-basis:100%;min-height:16px}
-.resultshead{display:flex;justify-content:space-between;align-items:center;margin:14px 0 7px;border-bottom:1px solid #ccc;padding-bottom:6px}
-.resultshead h2{font-size:16px;font-weight:bold;color:#0000EE;margin:0}.count{color:#666;font-size:12px}
-.layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(270px,.8fr);gap:10px;align-items:start}
-.panel{background:#fff;border:1px solid #ccc;border-radius:0;overflow:hidden}
-.panelhead{background:#eee;padding:8px 10px;border-bottom:1px solid #ccc;font-weight:bold;display:flex;justify-content:space-between;gap:8px}
-.list{max-height:580px;overflow:auto}
-.listing{padding:10px;border-bottom:1px solid #ddd;cursor:pointer}
-.listing:hover,.listing.active{background:#e6f0fb}
-.listing h3{font-size:14px;font-weight:normal;margin:3px 0;color:#0000EE;text-decoration:underline}
-.kind{font-size:11px;font-weight:bold;color:#333;text-transform:none}
-.place{font-size:12px;color:#666}
-.listing p{margin:5px 0;color:#333;font-size:13px}
-.sample{display:inline-block;font-size:10px;color:#333;background:#ffffcc;padding:2px 5px;border-radius:0;margin-left:5px;border:1px solid #ddd}
-.empty{padding:15px;color:#666;font-size:13px}
-#map{height:580px;width:100%;background:#eee}
+.count{color:#666;font-size:12px}
+#map{height: min(76vh, 760px);min-height:480px;width:100%;background:#eee}
 .mapfoot{padding:7px 10px;color:#666;font-size:11px;border-top:1px solid #ccc}
+.leaflet-popup-content{min-width:190px;max-width:280px}
+.map-popup-title{font-weight:bold;color:#0000EE;margin-bottom:5px}
+.map-popup-meta{font-size:12px;color:#666;margin-bottom:6px}
+.map-popup-detail{font-size:13px;margin-bottom:8px}
+.map-popup-button{border:1px solid #999;background:#eee;padding:6px 9px;color:#0000EE;text-decoration:underline;cursor:pointer;border-radius:2px}
+
 .accountbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;margin:0 0 10px;border:1px solid #ccc;background:#eee;font-size:13px}
 .workspace{margin:12px 0 16px;border:1px solid #ccc;background:#fff}.workspace summary{cursor:pointer;font-weight:bold;color:#0000EE;padding:9px 10px;background:#eee}.workspace[open] summary{border-bottom:1px solid #ccc}
 .workspacehead{display:flex;justify-content:space-between;gap:10px;padding:8px 10px;background:#eee;border-bottom:1px solid #ccc}
@@ -78,7 +71,7 @@ main{padding:12px 0 28px}
 .testunlock{margin-top:8px;padding:9px;border:1px solid #9bbf9b;background:#f0f8f0;color:#234d23;font-size:12px}
 .testlabel{font-size:10px;font-weight:bold;letter-spacing:.04em;color:#805000}
 @media(max-width:780px){.workgrid{grid-template-columns:1fr}}
-@media(max-width:780px){.layout{grid-template-columns:1fr}#map{height:400px}.list{max-height:380px}.navlinks{gap:11px}.field.category,.field.radius{flex:1;width:auto}}
+@media(max-width:780px){#map{height:65vh;min-height:400px}.navlinks{gap:11px}.field.category,.field.radius{flex:1;width:auto}}
 @media(max-width:440px){.nav{align-items:flex-start;flex-direction:column}.navlinks{flex-wrap:wrap}.field.zip,.field.radius,.field.category{flex-basis:100%}.btn{width:100%}}
 </style>
 </head>
@@ -117,7 +110,7 @@ main{padding:12px 0 28px}
     </section>
   </div>
 </details>
-<div class="intro"><h1>Opportunity map</h1><p>Explore opportunities. Select a pin or listing to see details.</p></div>
+<div class="intro"><h1>Opportunity map</h1><p>Hover over a marker to preview an opportunity. Select it to view details and request a connection.</p></div>
 <form class="search" id="searchForm">
 <div class="field zip"><label for="zip">Your ZIP code</label><input id="zip" inputmode="numeric" maxlength="5" placeholder="Enter ZIP code (e.g. 11427)" required></div>
 <div class="field radius"><label for="radius">Search radius</label><select id="radius"><option value="10">10 miles</option><option value="25" selected>25 miles</option><option value="50">50 miles</option><option value="100">100 miles</option></select></div>
@@ -125,12 +118,8 @@ main{padding:12px 0 28px}
 <button class="btn" id="searchBtn" type="submit">Search map</button>
 <div class="status" id="status" role="status">Showing demonstration opportunities around Queens and Nassau County.</div>
 </form>
-<div class="resultshead"><h2>Opportunities</h2><div class="count" id="count">Loading opportunities…</div></div>
-<div style="display:flex;gap:12px;flex-wrap:wrap;padding:7px 10px;border:1px solid #ccc;border-bottom:0;background:#eee;font-size:12px"><span><b style="color:#2563eb">●</b> Buyer</span><span><b style="color:#dc2626">●</b> Seller</span><span><b style="color:#16a34a">●</b> Tenant</span><span><b style="color:#9333ea">●</b> Partnership</span><span><b style="color:#d97706">●</b> Showing assistance</span><span><b style="color:#0891b2">●</b> Business services / Other</span></div>
-<div class="layout">
-<section class="panel"><div class="panelhead"><span>Interactive opportunity map</span><span class="count">OpenStreetMap</span></div><div id="map" aria-label="Interactive map of referral opportunities"></div><div class="mapfoot">Map data © OpenStreetMap contributors.</div></section>
-<section class="panel"><div class="list" id="list"></div></section>
-</div>
+<div style="display:flex;gap:12px;flex-wrap:wrap;padding:7px 10px;margin-top:10px;border:1px solid #ccc;border-bottom:0;background:#eee;font-size:12px"><span><b style="color:#2563eb">●</b> Buyer</span><span><b style="color:#dc2626">●</b> Seller</span><span><b style="color:#16a34a">●</b> Tenant</span><span><b style="color:#9333ea">●</b> Partnership</span><span><b style="color:#d97706">●</b> Showing assistance</span><span><b style="color:#0891b2">●</b> Business services / Other</span></div>
+<section class="panel"><div id="map" aria-label="Interactive map of referral opportunities"></div><div class="mapfoot">Map data © OpenStreetMap contributors. Hover over a marker for a preview; click to view details.</div></section>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 <script>
@@ -150,45 +139,45 @@ const zipCoordinateCache=new Map();
 const typeColors={Buyer:'#2563eb',Seller:'#dc2626',Tenant:'#16a34a',Partnership:'#9333ea','Showing Assistance':'#d97706','Business Services':'#0891b2',Other:'#0891b2'};
 function markerColor(type){return typeColors[type]||'#0891b2'}
 function makeOpportunityMarker(lat,lng,type,popup){return L.circleMarker([lat,lng],{radius:9,color:'#fff',weight:2,fillColor:markerColor(type),fillOpacity:.95}).addTo(map).bindPopup(popup)}
-const listEl=document.getElementById('list'),countEl=document.getElementById('count'),statusEl=document.getElementById('status');
+const statusEl=document.getElementById('status');
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function distanceMiles(a,b){const rad=Math.PI/180,dLat=(b.lat-a[0])*rad,dLon=(b.lng-a[1])*rad,x=Math.sin(dLat/2)**2+Math.cos(a[0]*rad)*Math.cos(b.lat*rad)*Math.sin(dLon/2)**2;return 3958.8*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x))}
-function highlight(id){document.querySelectorAll('.listing').forEach(x=>x.classList.remove('active'));const el=document.getElementById('item-'+id);if(el){el.classList.add('active');el.scrollIntoView({block:'nearest'})}}
+
+function popupHtml(row,isLive){
+ const title=esc(row.title||'Referral opportunity');
+ const location=esc([row.city||row.area,row.state,row.zip_code||row.zip].filter(Boolean).join(', '));
+ const type=esc(row.referral_type||row.type||'Opportunity');
+ const detail=esc(row.description||row.detail||'Contact the posting agent for more information.');
+ const button=isLive?'<button class="map-popup-button" type="button" data-request-id="'+esc(row.id)+'">Request to connect</button>':'';
+ return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isLive?' · LIVE':' · Sample')+'</div><div class="map-popup-detail">'+detail+'</div>'+button;
+}
+map.on('popupopen',event=>{
+ const button=event.popup.getElement()?.querySelector('[data-request-id]');
+ if(button){
+  const row=liveRows.find(item=>String(item.id)===button.dataset.requestId);
+  button.addEventListener('click',()=>{if(row)requestReferral(row)});
+ }
+});
 function render(){
  markers.forEach(m=>map.removeLayer(m));markers=[];
  const cat=$('category').value,r=Number($('radius').value);
- const filtered=samples.filter(o=>(cat==='all'||o.type===cat)&&(!center||o.distance<=r));
- listEl.innerHTML='';
- filtered.forEach(o=>{
-  const marker=makeOpportunityMarker(o.lat,o.lng,o.type,'<b>'+esc(o.title)+'</b><br>'+esc(o.area)+'<br>'+o.type+' example');
-  marker.on('click',()=>highlight(o.id));markers.push(marker);
-  const el=document.createElement('article');el.className='listing';el.id='item-'+o.id;
-  el.innerHTML='<div class="kind">'+o.type+' referral <span class="sample">Sample</span></div><h3>'+esc(o.title)+'</h3><div class="place">'+esc(o.area)+' · ZIP '+o.zip+'</div><p>'+esc(o.detail)+'</p>';
-  el.addEventListener('click',()=>{map.setView([o.lat,o.lng],13);marker.openPopup();highlight(o.id)});listEl.appendChild(el);
+ samples.filter(o=>(cat==='all'||o.type===cat)&&(!center||o.distance<=r)).forEach(o=>{
+  const marker=makeOpportunityMarker(o.lat,o.lng,o.type,popupHtml(o,false));
+  marker.bindTooltip('<b>'+esc(o.title)+'</b><br>'+esc(o.type)+' · ZIP '+esc(o.zip),{sticky:true,direction:'top'});
+  markers.push(marker);
  });
  liveRows.forEach(row=>{
   if(session && row.agent_id===session.user.id)return;
   if(cat!=='all' && String(row.referral_type).toLowerCase()!==cat.toLowerCase())return;
   const coords=zipCoordinateCache.get(String(row.zip_code||''));
-  const miles=(center&&coords)?distanceMiles(center,coords):null;
-  if(center && miles!==null && miles>r)return;
-  const location=[row.city,row.state,row.zip_code].filter(Boolean).join(', ');
-  if(coords){
-   const marker=makeOpportunityMarker(coords.lat,coords.lng,row.referral_type,'<b>'+esc(row.title||'Referral opportunity')+'</b><br>'+esc(location)+'<br>'+esc(row.referral_type)+' referral');
-   marker.on('click',()=>highlight('live-'+row.id));markers.push(marker);
-  }
-  const el=document.createElement('article');el.className='listing';el.id='live-'+row.id;
-  el.innerHTML='<div class="kind">'+esc(row.referral_type)+' referral <span class="sample">LIVE</span></div><h3>'+esc(row.title||'Referral opportunity')+'</h3><div class="place">'+esc(location)+(miles!==null?' · '+miles.toFixed(1)+' miles':'')+'</div><p>'+esc(row.description||'Contact the posting agent after submitting a request.')+'</p>';
-  const request=document.createElement('button');request.className='btn';request.type='button';request.textContent='Request to connect';request.disabled=!session||row.agent_id===session.user.id;
-  request.addEventListener('click',()=>requestReferral(row));el.appendChild(request);
-  if(coords)el.addEventListener('click',()=>{map.setView([coords.lat,coords.lng],13);const marker=markers.find(m=>m.getPopup()?.getContent().includes(esc(row.title||'Referral opportunity')));if(marker)marker.openPopup();highlight('live-'+row.id)});
-  listEl.appendChild(el);
+  if(!coords)return;
+  const miles=center?distanceMiles(center,coords):null;
+  if(center && miles>r)return;
+  const marker=makeOpportunityMarker(coords.lat,coords.lng,row.referral_type,popupHtml(row,true));
+  marker.bindTooltip('<b>'+esc(row.title||'Referral opportunity')+'</b><br>'+esc(row.referral_type)+' · ZIP '+esc(row.zip_code),{sticky:true,direction:'top'});
+  markers.push(marker);
  });
- const visibleLive=liveRows.filter(row=>{if(session && row.agent_id===session.user.id)return false;if(cat!=='all'&&String(row.referral_type).toLowerCase()!==cat.toLowerCase())return false;const coords=zipCoordinateCache.get(String(row.zip_code||''));if(center&&coords&&distanceMiles(center,coords)>r)return false;return true;});
- const total=filtered.length+visibleLive.length;
- countEl.textContent=total+' opportunities ('+filtered.length+' examples'+(visibleLive.length?', '+visibleLive.length+' live':'')+')';
- if(!total)listEl.innerHTML='<div class="empty">No opportunities match. Try a larger radius or another category.</div>';
 }
 function drawRadius(){if(radiusCircle)map.removeLayer(radiusCircle);if(center)radiusCircle=L.circle(center,{radius:Number($('radius').value)*1609.34,color:'#0000EE',fillColor:'#bacff2',fillOpacity:.16,weight:3,dashArray:'8 6'}).addTo(map)}
 $('category').addEventListener('change',render);
@@ -204,7 +193,7 @@ $('searchForm').addEventListener('submit',async e=>{
   center=[Number(data[0].lat),Number(data[0].lon)];
   samples.forEach(o=>o.distance=distanceMiles(center,{lat:o.lat,lng:o.lng}));
   render();map.setView(center,10);drawRadius();
-  statusEl.textContent='Showing '+samples.filter(o=>o.distance<=Number($('radius').value)).length+' sample opportunities within '+$('radius').value+' miles of '+zip+'. Live listings appear in the list when available.';
+  statusEl.textContent='Showing map opportunities within '+$('radius').value+' miles of ZIP '+zip+'. Hover over a marker for details.';
  }catch(err){statusEl.textContent=err.message}finally{btn.disabled=false}
 });
 function message(id,text){$(id).textContent=text||''}
