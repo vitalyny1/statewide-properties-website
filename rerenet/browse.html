@@ -120,7 +120,7 @@ main{padding:12px 0 28px}
       <div class="workmessage" id="postMessage" role="status"></div>
     </form>
     <section class="workpanel">
-      <h2>My opportunities</h2>
+      <h2>My Posted Opportunities</h2>
       <div id="myReferrals" class="worklist">Sign in to view your opportunities.</div>
     </section>
     <section class="workpanel">
@@ -128,7 +128,7 @@ main{padding:12px 0 28px}
       <div id="incomingRequests" class="worklist">Sign in to view requests.</div>
     </section>
     <section class="workpanel">
-      <h2>Opportunities I’m pursuing</h2>
+      <h2>Opportunities Given to Me / My Requests</h2>
       <div id="myRequests" class="worklist">Sign in to view opportunities.</div>
     </section>
     <section class="workpanel conversations-panel">
@@ -484,7 +484,7 @@ async function loadMyRequests(){
   el.innerHTML='<strong>'+esc(ref?.title||'Referral')+'</strong><span>'+esc([ref?.city,ref?.state,ref?.zip_code].filter(Boolean).join(', '))+' · '+esc(req.status)+' · Posted '+esc(formatDateTime(ref?.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'')+'</p>';
   if(req.status==='accepted' && ref?.agent_id){
    const heading=document.createElement('strong');heading.textContent='Your request was accepted — you are connected!';el.appendChild(heading);
-   const note=document.createElement('p');note.textContent='You can message the posting agent privately below.';el.appendChild(note);
+   const note=document.createElement('p');note.textContent='Open the private message thread in My Conversations.';el.appendChild(note);
   }else if(req.status==='pending'){
    const wait=document.createElement('p');wait.textContent='Waiting for the posting agent to review your request.';el.appendChild(wait);
   }else if(req.status==='declined'){
