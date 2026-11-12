@@ -43,6 +43,15 @@ main{padding:12px 0 28px}
 .map-popup-meta{font-size:12px;color:#666;margin-bottom:6px}
 .map-popup-detail{font-size:13px;margin-bottom:8px}
 .map-popup-button{border:1px solid #999;background:#eee;padding:6px 9px;color:#0000EE;text-decoration:underline;cursor:pointer;border-radius:2px}
+.map-popup-tabs{display:flex;gap:5px;border-bottom:1px solid #ccc;margin:7px 0;padding-bottom:5px}
+.map-popup-tab{border:1px solid #aaa;background:#eee;padding:5px 9px;cursor:pointer;border-radius:4px}
+.map-popup-tab.active{background:#dbeafe;border-color:#2563eb;color:#1d4ed8;font-weight:bold}
+.map-popup-pane[hidden]{display:none}
+.map-popup-agent-thread{border:1px solid #ddd;border-radius:5px;padding:7px;margin:8px 0}
+.map-popup-agent-thread h4{font-size:12px;margin:0 0 6px}
+.map-popup-messages .conversation{margin:0}
+.map-popup-messages .chatlog{max-height:180px;overflow-y:auto}
+.map-popup-messages .chatform textarea{width:100%;box-sizing:border-box}
 
 .accountbar{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 10px;margin:0 0 10px;border:1px solid #ccc;background:#eee;font-size:13px}
 .workspace{margin:12px 0 16px;border:1px solid #ccc;background:#fff}.workspace summary{cursor:pointer;font-weight:bold;color:#0000EE;padding:9px 10px;background:#eee}.workspace[open] summary{border-bottom:1px solid #ccc}
@@ -185,7 +194,7 @@ function popupHtml(row,isLive){
  const canRequest=isLive && session && !isMine;
  const button=canRequest?'<button class="map-popup-button" type="button" data-request-id="'+esc(row.id)+'">Request to connect</button>':'';
  const editButton=isMine?'<button class="map-popup-button" type="button" data-edit-opportunity="'+esc(row.id)+'">Edit my opportunity</button>':'';
- return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isMine?' · ★ MY OPPORTUNITY':isLive?' · LIVE':' · Sample')+'</div>'+(row.created_at?'<div class="map-popup-meta">Created '+esc(formatDateTime(row.created_at))+'</div>':'')+'<div class="map-popup-detail">'+detail+'</div>'+editButton+button;
+ return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isMine?' · ★ MY OPPORTUNITY':isLive?' · LIVE':' · Sample')+'</div>'+(row.created_at?'<div class="map-popup-meta">Created '+esc(formatDateTime(row.created_at))+'</div>':'')+(isLive && session?'<div class="map-popup-tabs"><button type="button" class="map-popup-tab active" data-popup-tab="details">Details</button><button type="button" class="map-popup-tab" data-popup-tab="messages">Messages</button></div>':'')+'<div class="map-popup-pane" data-popup-pane="details"><div class="map-popup-detail">'+detail+'</div>'+editButton+button+'</div>'+(isLive && session?'<div class="map-popup-pane" data-popup-pane="messages" hidden><div class="map-popup-messages">Loading conversations…</div></div>':'');
 }
 map.on('popupopen',event=>{
  const popupElement=event.popup.getElement();
@@ -225,6 +234,25 @@ map.on('popupopen',event=>{
   });
  }
 
+ const popupRoot=event.popup.getElement();
+ const tabButtons=popupRoot?.querySelectorAll('[data-popup-tab]');
+ const panes=popupRoot?.querySelectorAll('[data-popup-pane]');
+ if(tabButtons?.length){
+  tabButtons.forEach(tab=>tab.addEventListener('click',async()=>{
+   tabButtons.forEach(item=>item.classList.toggle('active',item===tab));
+   panes.forEach(pane=>pane.hidden=pane.dataset.popupPane!==tab.dataset.popupTab);
+   if(tab.dataset.popupTab==='messages'){
+    const rowId=event.popup._source?.opportunityId;
+    const row=liveRows.find(item=>String(item.id)===String(rowId));
+    const target=popupRoot.querySelector('.map-popup-messages');
+    if(row && target && !target.dataset.loaded){
+     target.dataset.loaded='1';
+     await loadOpportunityPopupMessages(row,target);
+    }
+    event.popup.update();
+   }
+  }));
+ }
  const editButton=event.popup.getElement()?.querySelector('[data-edit-opportunity]');
  if(editButton)editButton.addEventListener('click',()=>{
   const row=liveRows.find(item=>String(item.id)===editButton.dataset.editOpportunity);
@@ -338,6 +366,35 @@ $('searchForm').addEventListener('submit',async e=>{
 });
 function message(id,text){$(id).textContent=text||''}
 function formatDateTime(value){if(!value)return 'Date unavailable';const d=new Date(value);return Number.isNaN(d.getTime())?'Date unavailable':d.toLocaleString([], {year:'numeric',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}
+async function loadOpportunityPopupMessages(row,target){
+ target.innerHTML='';
+ if(!session){target.textContent='Please sign in to view messages.';return}
+ const isMine=row.agent_id===session.user.id;
+ let query=db.from('referral_interests').select('id,agent_id,created_at').eq('referral_id',row.id).eq('status','accepted');
+ if(!isMine)query=query.eq('agent_id',session.user.id);
+ const {data:threads,error}=await query;
+ if(error){target.textContent='Could not load conversations: '+error.message;return}
+ if(!threads?.length){target.textContent=isMine?'No accepted agent conversations for this opportunity yet.':'Your connection with the posting agent must be accepted before messaging.';return}
+ const items=[];
+ for(const thread of threads){
+  const counterpartId=isMine?thread.agent_id:row.agent_id;
+  const [{data:person},{data:lastRows}]=await Promise.all([
+   db.from('profiles').select('full_name,brokerage').eq('id',counterpartId).maybeSingle(),
+   db.from('referral_messages').select('created_at').eq('interest_id',thread.id).order('created_at',{ascending:false}).limit(1)
+  ]);
+  items.push({thread,person:person||{},lastActivity:lastRows?.[0]?.created_at||thread.created_at});
+ }
+ items.sort((a,b)=>new Date(b.lastActivity)-new Date(a.lastActivity));
+ for(const item of items){
+  const section=document.createElement('section');section.className='map-popup-agent-thread';
+  const heading=document.createElement('h4');
+  heading.textContent=(item.person.full_name||'Agent')+(item.person.brokerage?' · '+item.person.brokerage:'')+' · '+formatDateTime(item.lastActivity);
+  section.appendChild(heading);target.appendChild(section);
+  await appendConversation(section,item.thread.id);
+  const conversation=section.querySelector('.conversation h3');
+  if(conversation)conversation.textContent='Messages with '+(item.person.full_name||'Agent');
+ }
+}
 async function appendConversation(container,interestId){
  const box=document.createElement('section');box.className='conversation';
  const heading=document.createElement('h3');heading.textContent='Private conversation';box.appendChild(heading);
