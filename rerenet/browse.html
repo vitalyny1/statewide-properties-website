@@ -89,8 +89,8 @@ main{padding:12px 0 28px}
   <span id="signedInAs"></span>
   <button class="btn" id="signOutBtn" type="button">Sign out</button>
 </div>
-<section id="workspace" class="workspace" style="display:none">
-  <div class="workspacehead"><strong>Agent workspace</strong><span id="workspaceNote">Manage your opportunities and requests</span></div>
+<details id="workspace" class="workspace" style="display:none">
+  <summary>Agent tools — post an opportunity, manage requests, and open messages</summary>
   <div class="workgrid">
     <form id="postForm" class="workpanel">
       <h2>Post an opportunity</h2>
@@ -116,8 +116,8 @@ main{padding:12px 0 28px}
       <div id="myRequests" class="worklist">Sign in to view your requests.</div>
     </section>
   </div>
-</section>
-<div class="intro"><h1>Find referrals near you</h1><p>Search opportunities by ZIP code and distance. Select a pin or listing to see its location.</p></div>
+</details>
+<div class="intro"><h1>Opportunity map</h1><p>Explore opportunities. Select a pin or listing to see details.</p></div>
 <form class="search" id="searchForm">
 <div class="field zip"><label for="zip">Your ZIP code</label><input id="zip" inputmode="numeric" maxlength="5" placeholder="Enter ZIP code (e.g. 11427)" required></div>
 <div class="field radius"><label for="radius">Search radius</label><select id="radius"><option value="10">10 miles</option><option value="25" selected>25 miles</option><option value="50">50 miles</option><option value="100">100 miles</option></select></div>
@@ -125,10 +125,11 @@ main{padding:12px 0 28px}
 <button class="btn" id="searchBtn" type="submit">Search map</button>
 <div class="status" id="status" role="status">Showing demonstration opportunities around Queens and Nassau County.</div>
 </form>
-<div class="resultshead"><h2>Referral opportunities</h2><div class="count" id="count">4 sample listings</div></div>
+<div class="resultshead"><h2>Opportunities</h2><div class="count" id="count">Loading opportunities…</div></div>
+<div style="display:flex;gap:12px;flex-wrap:wrap;padding:7px 10px;border:1px solid #ccc;border-bottom:0;background:#eee;font-size:12px"><span><b style="color:#2563eb">●</b> Buyer</span><span><b style="color:#dc2626">●</b> Seller</span><span><b style="color:#16a34a">●</b> Tenant</span><span><b style="color:#9333ea">●</b> Partnership</span><span><b style="color:#d97706">●</b> Showing assistance</span><span><b style="color:#0891b2">●</b> Business services / Other</span></div>
 <div class="layout">
+<section class="panel"><div class="panelhead"><span>Interactive opportunity map</span><span class="count">OpenStreetMap</span></div><div id="map" aria-label="Interactive map of referral opportunities"></div><div class="mapfoot">Map data © OpenStreetMap contributors.</div></section>
 <section class="panel"><div class="panelhead"><span>Available opportunities</span><span class="count">Select to locate</span></div><div class="list" id="list"></div></section>
-<section class="panel"><div class="panelhead"><span>Interactive map</span><span class="count">OpenStreetMap</span></div><div id="map" aria-label="Interactive map of sample referral opportunities"></div><div class="mapfoot">Map data © OpenStreetMap contributors. Sample pins are examples, not live referral listings.</div></section>
 </div>
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -145,7 +146,9 @@ const samples=[
 const map=L.map('map').setView([40.735,-73.82],10);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
 let markers=[],center=null,radiusCircle=null,liveRows=[],session=null,profile=null;
-const zipCoordinateCache=new Map();\nconst typeColors={Buyer:'#2563eb',Seller:'#dc2626',Tenant:'#16a34a',Partnership:'#9333ea','Showing Assistance':'#d97706','Business Services':'#0891b2',Other:'#0891b2'};\nfunction markerColor(type){return typeColors[type]||'#0891b2'}\nfunction makeOpportunityMarker(lat,lng,type,popup){return L.circleMarker([lat,lng],{radius:9,color:'#fff',weight:2,fillColor:markerColor(type),fillOpacity:.95}).addTo(map).bindPopup(popup)}
+const zipCoordinateCache=new Map();\nconst typeColors={Buyer:'#2563eb',Seller:'#dc2626',Tenant:'#16a34a',Partnership:'#9333ea','Showing Assistance':'#d97706','Business Services':'#0891b2',Other:'#0891b2'};
+function markerColor(type){return typeColors[type]||'#0891b2'}
+function makeOpportunityMarker(lat,lng,type,popup){return L.circleMarker([lat,lng],{radius:9,color:'#fff',weight:2,fillColor:markerColor(type),fillOpacity:.95}).addTo(map).bindPopup(popup)}
 const listEl=document.getElementById('list'),countEl=document.getElementById('count'),statusEl=document.getElementById('status');
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
@@ -245,6 +248,7 @@ async function loadSession(){
  if(session){
   await loadProfile();
   await loadWorkspace();
+  $('workspace').style.display='block';
  }else{
   profile=null;
   $('workspace').style.display='none';
