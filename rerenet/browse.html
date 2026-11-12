@@ -409,8 +409,9 @@ async function loadIncoming(){
  const {data,error:requestError}=await db.from('referral_interests').select('id,referral_id,agent_id,message,status,created_at').in('referral_id',ids).eq('status','pending').order('created_at',{ascending:false});
  if(requestError){$('incomingRequests').textContent='Could not load requests: '+requestError.message;return}
  $('incomingRequests').innerHTML='';
- if(!data.length){$('incomingRequests').textContent='No requests yet.';return}
- for(const req of data){
+ const uniqueRequests=[...new Map((data||[]).map(req=>[req.id,req])).values()];
+ if(!uniqueRequests.length){$('incomingRequests').textContent='No pending requests.';return}
+ for(const req of uniqueRequests){
   const ref=refs.find(x=>x.id===req.referral_id)||{};
   const {data:requester}=await db.from('profiles').select('full_name,brokerage').eq('id',req.agent_id).maybeSingle();
   const el=document.createElement('div');el.className='workitem';
@@ -433,7 +434,7 @@ async function loadConversations(){
  const {data:outgoing,error:outgoingError}=await db.from('referral_interests').select('id,referral_id,agent_id,created_at').eq('agent_id',session.user.id).eq('status','accepted');
  if(outgoingError){target.textContent='Could not load conversations: '+outgoingError.message;return}
  const ownedById=new Map((owned||[]).map(row=>[row.id,row]));
- const threads=[...incoming,...(outgoing||[])],enriched=[];
+ const threads=[...new Map([...incoming,...(outgoing||[])].map(thread=>[thread.id,thread])).values()],enriched=[];
  for(const thread of threads){
   let ref=ownedById.get(thread.referral_id);
   if(!ref){const {data,error}=await db.from('referrals').select('id,title,referral_type,agent_id,created_at').eq('id',thread.referral_id).maybeSingle();if(error||!data)continue;ref=data}
