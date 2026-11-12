@@ -30,7 +30,8 @@ main{padding:12px 0 28px}
 .count{color:#666;font-size:12px}
 #map{height: min(76vh, 760px);min-height:480px;width:100%;background:#eee}
 .mapfoot{padding:7px 10px;color:#666;font-size:11px;border-top:1px solid #ccc}
-.leaflet-popup-content-wrapper{max-height:65vh;overflow-y:auto}\n.leaflet-popup-content{min-width:190px;max-width:280px;max-height:60vh;overflow-y:auto}
+.leaflet-popup-content-wrapper{max-height:65vh;overflow-y:auto}
+.map-popup-title{cursor:grab;user-select:none;touch-action:none}.map-popup-title:active{cursor:grabbing}\n.leaflet-popup-content{min-width:190px;max-width:280px;max-height:60vh;overflow-y:auto}
 .map-popup-title{font-weight:bold;color:#0000EE;margin-bottom:5px}
 .map-popup-meta{font-size:12px;color:#666;margin-bottom:6px}
 .map-popup-detail{font-size:13px;margin-bottom:8px}
@@ -151,6 +152,33 @@ function popupHtml(row,isLive){
  return '<div class="map-popup-title">'+title+'</div><div class="map-popup-meta">'+type+' · '+location+(isMine?' · ★ MY OPPORTUNITY':isLive?' · LIVE':' · Sample')+'</div><div class="map-popup-detail">'+detail+'</div>'+editButton+button;
 }
 map.on('popupopen',event=>{
+ const popupElement=event.popup.getElement();
+ const dragHandle=popupElement?.querySelector('.map-popup-title');
+ if(dragHandle){
+  dragHandle.addEventListener('pointerdown',e=>{
+   if(e.button!==0)return;
+   e.preventDefault();e.stopPropagation();
+   const start=map.latLngToContainerPoint(event.popup.getLatLng());
+   const origin={x:e.clientX,y:e.clientY};
+   const wasDragging=map.dragging.enabled();
+   if(wasDragging)map.dragging.disable();
+   dragHandle.setPointerCapture(e.pointerId);
+   const move=ev=>{
+    const point=L.point(start.x+ev.clientX-origin.x,start.y+ev.clientY-origin.y);
+    event.popup.setLatLng(map.containerPointToLatLng(point));
+   };
+   const finish=()=>{
+    dragHandle.removeEventListener('pointermove',move);
+    dragHandle.removeEventListener('pointerup',finish);
+    dragHandle.removeEventListener('pointercancel',finish);
+    if(wasDragging)map.dragging.enable();
+   };
+   dragHandle.addEventListener('pointermove',move);
+   dragHandle.addEventListener('pointerup',finish);
+   dragHandle.addEventListener('pointercancel',finish);
+  });
+ }
+
  const editButton=event.popup.getElement()?.querySelector('[data-edit-opportunity]');
  if(editButton)editButton.addEventListener('click',()=>{
   const row=liveRows.find(item=>String(item.id)===editButton.dataset.editOpportunity);
