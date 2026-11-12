@@ -422,22 +422,35 @@ async function loadMyReferrals(){
  });
 }
 async function loadIncoming(){
+ const target=$('incomingRequests');
+ const renderId=(Number(target.dataset.renderId)||0)+1;
+ target.dataset.renderId=String(renderId);
+ target.innerHTML='';
  const {data:refs,error}=await db.from('referrals').select('id,title,referral_type,created_at').eq('agent_id',session.user.id);
- if(error){$('incomingRequests').textContent='Could not load incoming requests: '+error.message;return}
- if(!refs.length){$('incomingRequests').textContent='No requests yet.';return}
+ if(target.dataset.renderId!==String(renderId))return;
+ if(error){target.textContent='Could not load incoming requests: '+error.message;return}
+ if(!refs.length){target.textContent='No requests yet.';return}
  const ids=refs.map(x=>x.id);
  const {data,error:requestError}=await db.from('referral_interests').select('id,referral_id,agent_id,message,status,created_at').in('referral_id',ids).eq('status','pending').order('created_at',{ascending:false});
- if(requestError){$('incomingRequests').textContent='Could not load requests: '+requestError.message;return}
- $('incomingRequests').innerHTML='';
- const uniqueRequests=[...new Map((data||[]).map(req=>[req.id,req])).values()];
- if(!uniqueRequests.length){$('incomingRequests').textContent='No pending requests.';return}
+ if(target.dataset.renderId!==String(renderId))return;
+ if(requestError){target.textContent='Could not load requests: '+requestError.message;return}
+ // A single agent should appear only once for each opportunity, even if duplicate rows exist.
+ const uniqueRequests=[...new Map((data||[]).map(req=>[req.referral_id+'|'+req.agent_id,req])).values()];
+ if(!uniqueRequests.length){target.textContent='No pending requests.';return}
+ const profileCache=new Map();
  for(const req of uniqueRequests){
+  if(target.dataset.renderId!==String(renderId))return;
   const ref=refs.find(x=>x.id===req.referral_id)||{};
-  const {data:requester}=await db.from('profiles').select('full_name,brokerage').eq('id',req.agent_id).maybeSingle();
+  let requester=profileCache.get(req.agent_id);
+  if(!requester){
+   const result=await db.from('profiles').select('full_name,brokerage').eq('id',req.agent_id).maybeSingle();
+   requester=result.data||{};
+   profileCache.set(req.agent_id,requester);
+  }
+  if(target.dataset.renderId!==String(renderId))return;
   const el=document.createElement('div');el.className='workitem';
-  el.innerHTML='<strong>'+esc(ref.title||ref.referral_type||'Referral')+'</strong><span>From: '+esc(requester?.full_name||'Agent')+(requester?.brokerage?' · '+esc(requester.brokerage):'')+' · '+esc(req.status)+' · Opportunity posted '+esc(formatDateTime(ref.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'No message included.')+'</p>';
-
-  $('incomingRequests').appendChild(el);
+  el.innerHTML='<strong>'+esc(ref.title||ref.referral_type||'Referral')+'</strong><span>From: '+esc(requester.full_name||'Agent')+(requester.brokerage?' · '+esc(requester.brokerage):'')+' · '+esc(req.status)+' · Opportunity posted '+esc(formatDateTime(ref.created_at))+' · Requested '+esc(formatDateTime(req.created_at))+'</span><p>'+esc(req.message||'No message included.')+'</p>';
+  target.appendChild(el);
  }
 }
 async function loadConversations(){
