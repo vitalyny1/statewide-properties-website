@@ -208,8 +208,42 @@ map.on('popupopen',event=>{
  });
  const button=event.popup.getElement()?.querySelector('[data-request-id]');
  if(button){
-  const row=liveRows.find(item=>String(item.id)===button.dataset.requestId);
-  button.addEventListener('click',()=>{if(row)requestReferral(row)});
+  button.addEventListener('click',()=>{
+   const row=liveRows.find(item=>String(item.id)===button.dataset.requestId);
+   if(!row)return;
+   if(!session){location.href='auth.html';return}
+   if(row.agent_id===session.user.id)return;
+   const content=event.popup.getElement()?.querySelector('.leaflet-popup-content');
+   if(!content || content.querySelector('.map-connect-form'))return;
+   const form=document.createElement('form');
+   form.className='map-connect-form';
+   form.style.cssText='display:grid;gap:7px;margin-top:9px';
+   const label=document.createElement('label');
+   label.textContent='Message to the posting agent (optional)';
+   label.style.cssText='display:grid;gap:4px;font-size:12px;font-weight:600';
+   const input=document.createElement('textarea');
+   input.rows=2;input.maxLength=1000;
+   input.placeholder='Introduce yourself or explain your interest';
+   input.style.cssText='width:100%;box-sizing:border-box;padding:7px;border:1px solid #bbb;border-radius:4px;font:inherit';
+   label.appendChild(input);form.appendChild(label);
+   const send=document.createElement('button');
+   send.type='submit';send.className='map-popup-button';send.textContent='Send connection request';
+   form.appendChild(send);
+   const feedback=document.createElement('div');feedback.style.cssText='font-size:12px';form.appendChild(feedback);
+   form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!session){feedback.textContent='Please sign in again.';return}
+    send.disabled=true;feedback.textContent='Sending request…';
+    const {error}=await db.from('referral_interests').insert({referral_id:row.id,agent_id:session.user.id,message:input.value.trim()});
+    if(error){send.disabled=false;feedback.textContent='Could not send request: '+error.message;return}
+    feedback.textContent='Request sent. The posting agent can review it under “Requests on my opportunities”.';
+    send.remove();input.disabled=true;button.disabled=true;button.textContent='Request sent';
+    await loadWorkspace();
+   });
+   content.appendChild(form);
+   event.popup.update();
+   input.focus();
+  });
  }
 });
 function render(){
@@ -409,15 +443,7 @@ $('postForm').addEventListener('submit',async e=>{
  if(error){message('postMessage','Could not post: '+error.message);return}
  $('postForm').reset();message('postMessage','Your opportunity has been posted.');await loadWorkspace();await loadLiveRows();
 });
-async function requestReferral(row){
- if(!session){location.href='auth.html';return}
- if(row.agent_id===session.user.id){alert('You cannot request to connect with your own opportunity.');return}
- const text=prompt('Add a short message to the posting agent (optional):','');
- if(text===null)return;
- const {error}=await db.from('referral_interests').insert({referral_id:row.id,agent_id:session.user.id,message:text.trim()});
- if(error){alert(error.message);return}
- alert('Your request has been sent. The posting agent can now review it.');await loadWorkspace();
-}
+
 async function geocodeLiveZip(zip){
  const key=String(zip||'').trim();
  if(!/^\d{5}$/.test(key))return null;
