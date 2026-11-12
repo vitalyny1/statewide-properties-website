@@ -92,6 +92,11 @@ main{padding:12px 0 28px}
 @media(max-width:780px){#map{height:65vh;min-height:400px}.navlinks{gap:11px}.field.category,.field.radius{flex:1;width:auto}}
 @media(max-width:440px){.nav{align-items:flex-start;flex-direction:column}.navlinks{flex-wrap:wrap}.field.zip,.field.radius,.field.category{flex-basis:100%}.btn{width:100%}}
 .other-agents-heading{color:#2563eb}
+.fold-section>summary{cursor:pointer;list-style:none;font-size:18px;font-weight:700;color:#172554;display:flex;align-items:center;gap:10px;padding:2px 0}
+.fold-section>summary::-webkit-details-marker{display:none}
+.fold-section>summary::before{content:'＋';display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#eff6ff;color:#2563eb;font-size:16px;line-height:1}
+.fold-section[open]>summary::before{content:'−'}
+.fold-content{padding-top:14px}
 </style>
 </head>
 <body>
@@ -116,20 +121,28 @@ main{padding:12px 0 28px}
   <summary>Agent Tools</summary>
   <div class="workgrid">
     <form id="postForm" class="workpanel">
-      <h2>1. Post an Opportunity</h2>
-      <label>Opportunity type<select id="postType"><option>Buyer</option><option>Seller</option><option>Tenant</option></select></label>
-      <label>Short title<input id="postTitle" maxlength="120" placeholder="e.g. Buyer seeking a home in Queens" required></label>
-      <label>City<input id="postCity" maxlength="100" placeholder="City" required></label>
-      <label>State<input id="postState" maxlength="2" placeholder="NY" required></label>
-      <label>ZIP code<input id="postZip" maxlength="10" placeholder="ZIP code" required></label>
-      <label>Details<textarea id="postDescription" maxlength="2000" rows="3" placeholder="Share general details. Do not include the client's name or contact information."></textarea></label>
-      <button class="btn" id="postBtn" type="submit">Post Opportunity</button>
-      <div class="workmessage" id="postMessage" role="status"></div>
+      <details class="fold-section" open>
+        <summary>1. Post an Opportunity</summary>
+        <div class="fold-content">
+          <label>Opportunity type<select id="postType"><option>Buyer</option><option>Seller</option><option>Tenant</option></select></label>
+          <label>Short title<input id="postTitle" maxlength="120" placeholder="e.g. Buyer seeking a home in Queens" required></label>
+          <label>City<input id="postCity" maxlength="100" placeholder="City" required></label>
+          <label>State<input id="postState" maxlength="2" placeholder="NY" required></label>
+          <label>ZIP code<input id="postZip" maxlength="10" placeholder="ZIP code" required></label>
+          <label>Details<textarea id="postDescription" maxlength="2000" rows="3" placeholder="Share general details. Do not include the client's name or contact information."></textarea></label>
+          <button class="btn" id="postBtn" type="submit">Post Opportunity</button>
+          <div class="workmessage" id="postMessage" role="status"></div>
+        </div>
+      </details>
     </form>
     <section class="workpanel">
-      <h2>2. My Posted Opportunities</h2>
-      <div id="myReferrals" class="worklist">Sign in to view your opportunities.</div>
-      <div id="incomingRequests" class="worklist">Sign in to view requests.</div>
+      <details class="fold-section" open>
+        <summary>2. My Posted Opportunities</summary>
+        <div class="fold-content">
+          <div id="myReferrals" class="worklist">Sign in to view your opportunities.</div>
+          <div id="incomingRequests" class="worklist">Sign in to view requests.</div>
+        </div>
+      </details>
     </section>
     <section class="workpanel conversations-panel">
       <h2 class="other-agents-heading">3. Other Agents' Posted Opportunities</h2>
